@@ -1,0 +1,144 @@
+:root {
+	--border-colour: #888888;
+}
+#inbox {
+	width: 100%;
+	border: 2px solid var(--border-colour);
+	height: 500px;
+}
+.msg {
+	background-color: #666666;
+	color: #ffffff;
+	width: 100%;
+	border: 2px solid #999999;
+	padding; 5px;
+}
+#messages, .msgContent{
+	display: inline-block; 
+	*display: inline; 
+	zoom: 1; 
+	vertical-align: top; 
+	font-size: 12px;
+	
+}
+#messages {
+	width: 20%;
+	height: 100%;
+	border-right: 4px solid var(--border-colour);
+}
+.med {
+	border: 2px solid orange;
+	background-color: #887766;
+}
+.high {
+	border: 2px solid red;
+	background-color: #886666;
+}
+#searchBar, #sortOption{
+	margin: 5px;
+	width: 90%;
+}
+#tableDiv {
+	margin-right: 5%;
+	margin-left: 5%;
+}
+	#tableDiv td{
+		margin-right: 5%;
+		margin-left: 5%;
+		text-align: left;
+	}
+#incoming {
+	overflow-y: scroll;
+	margin-top: 3%;
+	border-top: 2px solid var(--border-colour);
+	height: 80%;
+}
+textarea {
+	margin-bottom: 10px;
+}
+
+.msgContent {
+	position: relative;
+	height: 100%;
+	top: 0;
+	box-sizing: border-box;
+	width: 80%;
+}
+	.msgContent input{
+		width:20%;
+	}
+	
+	.msgContent th{
+		color: #ffffff;
+		font-size: 20px;
+		text-align: left;
+		width: 50%;
+		vertical-align: center;
+	}
+	.msgContent td{
+		color: var(--accent-colour);
+		vertical-align: center;			
+	}
+		
+	.msgHeader {
+		margin: 10px;
+		height: 10%;
+	}
+		
+		.msgHeader th{
+			font-size: 20px;
+			text-align: right;
+			padding-right: 10px;
+			width: 150px;
+		}
+		
+		.msgHeader td{
+			font-size: 20px;
+			text-align: left;
+		}
+	
+	.msgBody {
+		font-size: 15px;
+		padding: 1%;
+	}
+		.msgBody th{
+			font-size: 15px;
+			text-align: right;
+			width: 10%;
+
+		}
+		.msgBody td{
+			font-size: 20px;
+			text-align: left;
+			width: 23%;	
+		}
+		.msgBody textarea{
+			width: 80%;
+			font-size: 20px;
+			background-color: #444444;
+			color: white;
+		}
+	.msgFooter {
+		position: absolute;
+		height: 40%;
+		width: 100%;
+		bottom: 0;
+		font-size: 15px;
+	}
+		.msgFooter textarea{
+			width: 60%;
+			font-size: 20px;
+		}
+		.msgFooter button{
+			font-size: 20px;
+			margin: 10px;
+		}
+		
+@media screen and (max-width: 1100px){
+	.msgContent td, .msgContent th, .msgContent textarea, .msgContent button{
+		font-size: 15px;
+	}
+	.msg{
+		font-size: 10px;
+	}
+}

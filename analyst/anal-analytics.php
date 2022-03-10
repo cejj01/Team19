@@ -167,7 +167,7 @@
 		}
 		
 		// Get the number of solved problems without using a specialist from the database
-		$sqlOperatorSolved = "SELECT COUNT(ProblemNo) AS 'operatorSolved' FROM ProblemNumber WHERE Accepted = 'Yes' AND SpecialistID = ''";
+		$sqlOperatorSolved = "SELECT COUNT(ProblemNo) AS 'operatorSolved' FROM ProblemNumber WHERE Accepted = 'Yes' AND SpecialistID = 'F013103'";
 		$resultOperatorSolved = $conn->query($sqlOperatorSolved);
 		if ($resultOperatorSolved->num_rows > 0) {
 			while ($row = $resultOperatorSolved->fetch_assoc()) {

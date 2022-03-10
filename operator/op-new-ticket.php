@@ -336,7 +336,7 @@ include '../logs.php';
     <input style=" margin-bottom:10px;" name="callerNameFilter" class="filter" type="text" id="callerNameFilter" oninput="FilterCallerName()"></input>
     <br>
 </div>
-<table border="1" id="CallerTable" onclick="SelectCallerRow(event)">
+<table border="1" id="CallerTable" class="dark-table fixPadding" onclick="SelectCallerRow(event)">
   <tr>
 	<th>Employee ID</th>
     <th>Employee Name</th>
@@ -398,7 +398,7 @@ include '../logs.php';
 	<label for="ProblemType">Problem Type</label>
 
 	<select class="modal-input" name="ProblemType" id="NewProbType" onchange="UnlockNewProblemType()">
-			<?php include 'problemTypeSelection.php'; ?>
+			<?php include '../mainProblemTypes.php'; ?>
 	</select>
 
 	<div class="right-input">
@@ -447,7 +447,7 @@ include '../logs.php';
   
 
 
-<table border="1" id="SpecialistTable" onclick="SelectSpecialistRow(event)">
+<table border="1" class="dark-table fixPadding" id="SpecialistTable" onclick="SelectSpecialistRow(event)">
   <tr>
 	<th>Specialist ID</th>
     <th>Specialist Name</th>
@@ -684,10 +684,10 @@ include '../logs.php';
 			}
 
 			//Checks if there is software
-			if ($row['Software'] == "") {
+			if ($row['SoftwareName'] == "") {
 				$software = "N/A";
 			} else {
-				$software = $row['Software'];
+				$software = $row['SoftwareName'];
 			}
 
 			//Gives results in table
@@ -699,8 +699,7 @@ include '../logs.php';
 			"<td>" . $software . "</td>" .
 			"<td>" . $tickets . "</td>" . 
 			"<td>" . $row['ProblemDescription'] . "</td>" .
-			"<td>" . $row['Urgency'] . "</td>" .
-			"</tr>";
+						"</tr>";
 		}
 	}
 	?>

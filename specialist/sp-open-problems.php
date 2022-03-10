@@ -47,7 +47,7 @@
 		<th>Software</th>
 		<th>Tickets Assigned</th>
 		<th>Description</th>
-		<th>Urgency</th>
+
 	</tr></thead>
 	<tbody>
 	<?php
@@ -79,10 +79,10 @@
 			}
 
 			//Checks if there is software
-			if ($row['Software'] == "") {
+			if ($row['SoftwareName'] == "") {
 				$software = "N/A";
 			} else {
-				$software = $row['Software'];
+				$software = $row['SoftwareName'];
 			}
 
 			//Gives results in table
@@ -94,7 +94,6 @@
 			"<td>" . $software . "</td>" .
 			"<td>" . $tickets . "</td>" . 
 			"<td>" . $row['ProblemDescription'] . "</td>" .
-			"<td>" . $row['Urgency'] . "</td>" .
 			"</tr>";
 		}
 	}
@@ -170,6 +169,40 @@
   </div>
 
 </div>
+<script>
 
+function FilterProblems() {
+		var filter = document.getElementById("searchBar").value.toUpperCase();
+		var table = document.getElementById("ProblemTable");
+		var tr = table.getElementsByTagName("tr");
+		var td;
+		
+		if (filter == "") {
+			for (i = 0; i < tr.length; i++) {
+				tr[i].style.display = "";
+			}
+		} else {
+
+			for (i = 0; i < tr.length; i++) {
+				td = tr[i].getElementsByTagName("td")[document.getElementById("searchType").value];
+				if (td) {
+      				txtValue = td.textContent || td.innerText;
+				
+      					if (txtValue.toUpperCase().includes(filter)) {
+      						tr[i].style.display = "";
+						if (txtValue.toUpperCase().includes("N/A")) {
+							tr[i].style.display = "none";
+						}
+     					 } else {
+    					 	tr[i].style.display = "none";
+    					 }
+				
+   				}
+
+			}
+			}
+	}
+
+</script>
 <script src="/js/probTableScript.js"></script>
 </html>

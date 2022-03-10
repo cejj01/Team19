@@ -51,7 +51,6 @@ include '../logs.php';
 		<th>Software</th>
 		<th>Tickets Assigned</th>
 		<th>Description</th>
-		<th>Urgency</th>
 	</tr></thead>
 	<tbody>
 	<?php
@@ -83,10 +82,10 @@ include '../logs.php';
 			}
 
 			//Checks if there is software
-			if ($row['Software'] == "") {
+			if ($row['SoftwareName'] == "") {
 				$software = "N/A";
 			} else {
-				$software = $row['Software'];
+				$software = $row['SoftwareName'];
 			}
 
 			//Gives results in table
@@ -98,7 +97,6 @@ include '../logs.php';
 			"<td>" . $software . "</td>" .
 			"<td>" . $tickets . "</td>" . 
 			"<td>" . $row['ProblemDescription'] . "</td>" .
-			"<td>" . $row['Urgency'] . "</td>" .
 			"</tr>";
 		}
 	}

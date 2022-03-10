@@ -3,7 +3,7 @@
   <body>
     <?php
     /*This page retrieves all users from the database and echos these to the frontend so that the current user can select the user they wish to chat with
-    It saves these to an array, encodes this in json and echos it to the frontend
+    - Aneirin Horvath
     */
 
     include 'databaseConnection.php';
@@ -20,7 +20,6 @@
       }
     }
 
-    echo json_encode($users);
 
 
     ?>

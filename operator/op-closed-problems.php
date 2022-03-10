@@ -140,6 +140,41 @@ include '../logs.php';
   </div>
 
 </div>
+<script>
+
+function FilterProblems() {
+		var filter = document.getElementById("searchBar").value.toUpperCase();
+		var table = document.getElementById("ProblemTable");
+		var tr = table.getElementsByTagName("tr");
+		var td;
+		
+		if (filter == "") {
+			for (i = 0; i < tr.length; i++) {
+				tr[i].style.display = "";
+			}
+		} else {
+ 
+			for (i = 0; i < tr.length; i++) {
+				td = tr[i].getElementsByTagName("td")[document.getElementById("searchType").value];
+				if (td) {
+      				txtValue = td.textContent || td.innerText;
+				
+      					if (txtValue.toUpperCase().includes(filter)) {
+      						tr[i].style.display = "";
+						if (txtValue.toUpperCase().includes("N/A")) {
+							tr[i].style.display = "none";
+						}
+     					 } else {
+    					 	tr[i].style.display = "none";
+    					 }
+				
+   				}
+
+			}
+			}
+	}
+
+</script>
 </body>
 
 <script src="/js/probTableScript.js"></script>

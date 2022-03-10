@@ -49,7 +49,7 @@
 
   //Displays each problem in common problems table.
   if ($resultCommon->num_rows > 0) {
-      echo "<table border='1' id='DeleteCommonProblemsTable' onclick='SelectCommonProblemRow(event)'>";
+      echo "<table border='1' id='DeleteCommonProblemsTable' class='dark-table fixPadding' onclick='SelectCommonProblemRow(event)'>";
       echo "<tr> <th>Num</th> <th>ProblemType</th> <th>Description</th> <th>Solution</th> </tr>";
       while ($row = $resultCommon->fetch_assoc()) {
           echo "<tr>";
@@ -166,10 +166,10 @@
 	
 
 
-	<label for="problem-description">Description</label>
-	<textarea id="problem-description-text-area" name="problem-description" rows="10" style ="resize: none;"></textarea>
+	<label for="problem-description">Description</label><br>
+	<textarea id="problem-description-text-area" name="problem-description" rows="10" style ="resize: none;"></textarea><br>
 
-	<label for="problem-solution">Solution</label>
+	<label for="problem-solution">Solution</label><br>
 	<textarea id="problem-solution-text-area" name="problem-solution" rows="10" style ="resize: none;"></textarea>
 
     </div>

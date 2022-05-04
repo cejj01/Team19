@@ -988,6 +988,15 @@ function getNextProblem($conn) {
   return $problemNum;
 }
 
+function getNextProblemType($conn) {    
+  $sqlPrevProblem = "SELECT MAX(ProblemTypeID) AS 'ProblemTypeID' FROM ProblemTypes";
+  $probResult = mysqli_query($conn, $sqlPrevProblem);
+  $oldProblemNumStr = ($probResult->fetch_assoc())["ProblemTypeID"];
+  $problemNumInt = intval($oldProblemNumStr) + 1;
+  $problemNum = strval($problemNumInt);
+  return $problemNum;
+}
+
 //function for getting next ticket number.
 function getNextTicket($conn) {
   $sqlPrevTicket = "SELECT MAX(TicketNo) AS 'TicketNo' FROM Tickets";
@@ -1045,6 +1054,7 @@ if (isset($_POST["submitProblemType"])) {
   include '../databaseConnection.php';
 
   //values that represent the new problem type
+  $problemID = getNextProblemType($conn);
   $problemArea = $_POST["HardOrSoft"];
   $problemType = $_POST["ProblemType"];
   $subProblemType = $_POST["sub-problem"];
@@ -1056,7 +1066,7 @@ if (isset($_POST["submitProblemType"])) {
 
 
   //sql statement for adding new problem type
-  $sqlNewProblem = "INSERT IGNORE INTO ProblemTypes VALUES ('$problemType', '$problemArea', '$subProblemType')";
+  $sqlNewProblem = "INSERT INTO ProblemTypes VALUES ('$problemID', '$problemType', '$problemArea', '$subProblemType')";
 
   //Add problem type to database
   if ($conn->query($sqlNewProblem)) {

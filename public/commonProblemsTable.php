@@ -1,6 +1,6 @@
 <?php
   //sql statement for getting commom problems
-  $sqlSelectCommon = "SELECT CommonProblemNo, ProblemType, ProblemDescription, Solution FROM CommonProblems";
+  $sqlSelectCommon = "SELECT CommonProblemNo, ProblemDescription, Solution, ProblemTypes.ProblemType, ProblemTypes.SubProblemType FROM CommonProblems LEFT JOIN ProblemTypes ON CommonProblems.ProblemTypeID = ProblemTypes.ProblemTypeID";
 
   //gets result from db
   $resultCommon = $conn->query($sqlSelectCommon);
@@ -12,7 +12,7 @@
       while ($row = $resultCommon->fetch_assoc()) {
           echo "<tr>";
           echo "<td>" . $row['CommonProblemNo'] . "</td>";
-          echo "<td>" . $row['ProblemType'] . "</td>";
+          echo "<td>" . $row['ProblemType'] . ' ' . $row['SubProblemType'] . "</td>";
           echo "<td>" . $row['ProblemDescription'] . "</td>";
           echo "<td>" . $row['Solution'] . "</td>";
           echo "</tr>";

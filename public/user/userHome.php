@@ -244,7 +244,7 @@ border-width:0px;
 }
 
 .dark-table th{
-	text-align: left;
+	text-align: center;
 	color: var(--accent-colour);
 }
 
@@ -392,7 +392,7 @@ include '../logs.php';
   
 
 
-<table border="1" id="SpecialistTable" onclick="SelectSpecialistRow(event)">
+<table border="1" class = "dark-table" id="SpecialistTable" onclick="SelectSpecialistRow(event)">
   <tr>
 	<th>Specialist ID</th>
     <th>Specialist Name</th>
@@ -402,8 +402,8 @@ include '../logs.php';
   <?php
   //Selects the list of possible specialists from the database.
   //sql statement for getting all specialists
-  $sqlSpecialists = "SELECT SpecialistID, UserName, Available FROM Specialist LEFT JOIN UserAccounts 
-    ON Specialist.SpecialistID = UserAccounts.PersonnelID";
+  $sqlSpecialists = "SELECT SpecialistID, FirstName,Surname, Available FROM Specialist LEFT JOIN Personnel 
+    ON Specialist.SpecialistID = Personnel.PersonnelID";
   //SELECT SpecialistID, UserName FROM `Specialist` INNER JOIN UserAccounts ON Specialist.SpecialistID = UserAccounts.UserID
   //gets result from db
   $resultSpecialists = $conn->query($sqlSpecialists);
@@ -417,10 +417,10 @@ include '../logs.php';
 
         echo "<tr>";
         echo "<td>" . $specID . "</td>";
-        echo "<td>" . $row['UserName'] . "</td>";
+        echo "<td>" . $row['FirstName'] . ' '. $row['Surname'] . "</td>";
 
         //sql for getting specialities
-        $sqlSpecialities = "SELECT Speciality FROM Specialities
+       $sqlSpecialities = "SELECT ProblemType FROM Specialities LEFT JOIN ProblemTypes ON Specialities.ProblemTypeID = ProblemTypes.ProblemTypeID
         WHERE SpecialistID = '$specID'";
         //gets result from db
         $resultSpecialities = $conn->query($sqlSpecialities);
@@ -431,16 +431,17 @@ include '../logs.php';
         if ($resultSpecialities->num_rows > 0 ) {
           $specialities = "";
           while ($row = $resultSpecialities->fetch_assoc()) {
-             $specialities = $specialities . $row['Speciality'] . ',';          
+             $specialities = $specialities . $row['ProblemType'] . ',' . ' ';          
           }
+	$specialities = substr($specialities, 0, -1);
           echo substr_replace($specialities, "", -1);
         }
         echo "</td>";
 
         
         //sql for getting the number of open tickets assigned to a specialist
-        $sqlTicketsAssigned = "SELECT COUNT(ProblemNo) AS 'Tickets' FROM ProblemNumber 
-          WHERE SpecialistID = '$specID'";
+        $sqlTicketsAssigned = "SELECT COUNT(ProblemID) AS 'Tickets' FROM ProblemNumber 
+          WHERE SpecialistID = '$specID' AND Resolved = 0";
         $resultTicketsAssigned = $conn->query($sqlTicketsAssigned);
 
         //Display number of open tickets a specialist has

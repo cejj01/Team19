@@ -39,10 +39,10 @@ function SearchFilter() {
     var input, filter, table, tr, td, i, userInput;
     input = document.getElementById("searchBar");
     filter = input.value.toLowerCase();
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
+    table = document.getElementById("incoming");
+    tr = table.getElementsByTagName("button");
     for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[2];
+        td = tr[i].getElementsByTagName("label")[0];
         if (td) {
             userInput = td.textContent || td.innerText;
             if (userInput.toLowerCase().indexOf(filter) > -1) {
@@ -60,7 +60,7 @@ function filterProblems() {
 	if (value == "placeholder") {
 
 	} else if (value == "probNum") {
-
+		
 	} else if (value == "probType") {
 
 	} else if (value == "urgency") {
@@ -82,7 +82,7 @@ function filterProblems() {
 <div id="inbox">
 	<div id="messages">
 		<div id="filters">
-			<input name="searchBar" type="text" id="searchBar" placeholder="Search...">
+			<input name="searchBar" type="text" id="searchBar" placeholder="Search..." onkeyup="SearchFilter()">
 			<select name="sortOption" id="sortOption" onchange="filterProblems()">
 				<option value="placeholder">Sort By ...</option>
                 <option value="probNum">Problem Number</option>
@@ -263,11 +263,12 @@ function allowSolve(){
       }  
 
 
-/*                AJAX JavaScript            */
+/* AJAX JavaScript */
 function loadMessages(){
 	var inboxThumbnail = <?php echo json_encode($inboxThumbnail);?>;
 	var numberOfProblems = inboxThumbnail.length;
 	var inbox = document.getElementById('incoming');
+
 	for (var i=0; i < numberOfProblems; i++) {
 		var newMsg = document.createElement("button");
 		newMsg.classList.add("msg");
@@ -277,7 +278,9 @@ function loadMessages(){
 		else if (inboxThumbnail[i]['ProblemPriority']=="High"){
 			newMsg.classList.add("high");
 		}
-		newMsg.innerHTML = '<label id="problemIDInput">Problem ID: '+inboxThumbnail[i]['ProblemID']+'</label> <br> <label id="problemTypeInput">Problem Type: '+inboxThumbnail[i]['ProblemTypeID']+'</label> <br> <label id="problemPriorityInput">Urgency: '+inboxThumbnail[i]['problemPriority']+'</label>';
+		//newMsg.innerHTML = '<label id="problemIDInput">Problem ID: '+inboxThumbnail[i]['ProblemID']+'</label> <br> <label id="problemTypeInput">Problem Type: '+inboxThumbnail[i]['ProblemTypeID']+'</label> <br> <label id="problemPriorityInput">Urgency: '+inboxThumbnail[i]['problemPriority']+'</label>';
+		//newMsg.innerHTML = '<tr> <td><label>Problem ID: '+inboxThumbnail[i]['ProblemID']+'</label></td> <td><label>Problem Type: '+inboxThumbnail[i]['ProblemTypeID']+'</label></td> <td><label>Urgency: '+inboxThumbnail[i]['problemPriority']+'</label></td> </tr>';
+		newMsg.innerHTML = '<label>Problem ID: '+inboxThumbnail[i]['ProblemID']+'</label> <br> <label>Problem Type: '+inboxThumbnail[i]['ProblemTypeID']+'</label> <br> <label>Urgency: '+inboxThumbnail[i]['problemPriority']+'</label> </tr>';
 		
 		//newMsg.innerHTML = '<p>Problem#: '+inboxThumbnail[i]['ProblemID']+'<br>Type: '+inboxThumbnail[i]['ProblemTypeID']+' <br>Urgency: '+inboxThumbnail[i]['problemPriority']+' </p>';
 		newMsg.setAttribute('onclick', "loadInbox('"+inboxThumbnail[i]['ProblemID']+"')");

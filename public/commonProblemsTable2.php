@@ -22,6 +22,9 @@
 	
   ?>
 <hr>
+<button id = "AddCommonProblemButton">Add Common Problem</button>
+<button id= "ShowAllCommonProblemsButton" onclick="ShowAllCommonProblems()"> Show All </button>
+<button id= "DeleteCommonProblemButton" onclick="DeleteCommonProblem()"> Delete Common Problem </button>
 
 
 <!-- Delete Common problem -->

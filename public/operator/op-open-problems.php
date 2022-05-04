@@ -44,8 +44,8 @@ include '../logs.php';
 <table class="dark-table" id="ProblemTable" onclick="SelectRow(event)">
 	<thead>
 	<tr>
-		<th>Problem#</th>
-		<th>Problem Type</th>
+		<th>Problem</th>
+		<th>Problem Type #</th>
 		<th>Date Assigned</th>
 		<th>Serial Number</th>
 		<th>Software</th>
@@ -56,9 +56,9 @@ include '../logs.php';
 	<?php
 	include '../databaseConnection.php';
 	//Gives number of tickets for a problem.
-	function getNumTickets($conn, $problemNo) {
+	function getNumTickets($conn, $problemID) {
 		//sql for getting tickets
-		$sqlNumTicket = "SELECT COUNT(TicketNo) AS 'Ticks' FROM Tickets WHERE ProblemNo = '$problemNo'";
+		$sqlNumTicket = "SELECT COUNT(TicketNo) AS 'Ticks' FROM Tickets WHERE ProblemID = '$problemID'";
 		$resultNumTicket = $conn->query($sqlNumTicket);
 
 		$numTickets = ($resultNumTicket->fetch_assoc())['Ticks'];
@@ -66,13 +66,14 @@ include '../logs.php';
 	} 
 
 	//sql for getting open problems
-	$sqlOpen = "SELECT * FROM ProblemNumber WHERE Accepted = 'No'";
+	$sqlOpen = "SELECT * FROM ProblemNumber WHERE Accepted = '1' AND Resolved = '0'";
 	$resultOpen = $conn->query($sqlOpen);
 
 	if ($resultOpen->num_rows > 0) {
 		while ($row = $resultOpen->fetch_assoc()) {
 			//Gets the number of tickets a problem has
-			$tickets = getNumTickets($conn,$row['ProblemNo']);
+			echo ($row);
+			$tickets = getNumTickets($conn,$row['ProblemID']);
 
 			//Checks if there is a serial number
 			if ($row['SerialNumber'] == "") {
@@ -82,16 +83,16 @@ include '../logs.php';
 			}
 
 			//Checks if there is software
-			if ($row['SoftwareName'] == "") {
+			if ($row['SoftwareID'] == "") {
 				$software = "N/A";
 			} else {
-				$software = $row['SoftwareName'];
+				$software = $row['SoftwareID'];
 			}
 
 			//Gives results in table
 			echo "<tr>" .
-			"<td>" . $row['ProblemNo'] . "</td>" .
-			"<td>" . $row['ProblemType'] . "</td>" .
+			"<td>" . $row['ProblemID'] . "</td>" .
+			"<td>" . $row['ProblemTypeID'] . "</td>" .
 			"<td>" . $row['1stSubmissionDate'] . "</td>" .
 			"<td>" . $serialNumber . "</td>" .
 			"<td>" . $software . "</td>" .

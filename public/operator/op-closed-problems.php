@@ -55,7 +55,7 @@ include '../logs.php';
 	<?php
 	include '../databaseConnection.php';
 	//sql for getting open problems
-	$sqlClosed = "SELECT * FROM ProblemNumber WHERE Accepted = 'Yes'";
+	$sqlClosed = "SELECT * FROM ProblemNumber WHERE Resolved = '1'";
 	$resultClosed = $conn->query($sqlClosed);
 
 	if ($resultClosed->num_rows > 0) {

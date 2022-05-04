@@ -319,61 +319,6 @@ include '../logs.php';
 
 
 
-<!-- Add caller modal -->
-<div id="CallerModal" class="modal">
-
-  <!-- Modal content -->
-  <div class="modal-content">
-    <div class="modal-header">
-      <span class="close">&times;</span>
-      <h2>Select Caller</h2>
-<hr>
-    </div>
-
-    <div class="modal-body">
-<div style="text-align: center;">
-	<label for="callerNameFilter" style="padding-top:0px;"> Name: </label>
-    <input style=" margin-bottom:10px;" name="callerNameFilter" class="filter" type="text" id="callerNameFilter" oninput="FilterCallerName()"></input>
-    <br>
-</div>
-<table border="1" id="CallerTable" onclick="SelectCallerRow(event)">
-  <tr>
-	<th>Employee ID</th>
-    <th>Employee Name</th>
-    <th>Telephone</th>
-    <th>Job Title</th>
-    <th>Department</th>
-  </tr>
-  <?php 
-  //Selects the list of possible callers from the database.
-  //sql statement and result for getting the list of users & their ids
-  $sqlGetUsers = "SELECT * FROM Personnel";
-  $resultUsers = $conn->query($sqlGetUsers);
-
-  //Displays all users in the form of a table.
-  if ($resultUsers->num_rows > 0) {
-    while ($row = $resultUsers->fetch_assoc()) {
-      echo "<tr>" .
-      "<td>" . $row['CallerID'] . "</td>" .
-      "<td>" . $row['CallerName'] .  "</td>" .
-      "<td>" . $row['Telephone'] . "</td>" .
-      "<td>" . $row['JobTitle'] . "</td>" .
-      "<td>" . $row['Department'] .
-      "</tr>\n";
-    }
-  }
-  ?>
-</table>    </div>
-    <div class="modal-footer">
-<hr>
-<br>
-      <button class="wide-button" onclick="CallerSelect()">Select</button>
-    </div>
-  </div>
-
-</div>
-
-
 <!-- Add Problem modal -->
 <div id="ProblemModal" class="modal">
 
@@ -540,13 +485,6 @@ include '../logs.php';
 <tr>
 <td>
 
-
-<div class="right-input">
-<label for="caller">Caller:</label>
-<input class="square-button-input" name ="caller" id = "CallerName" type = "text" readonly />
-
-<button class="square-button" type="button" id="CallerButton">+</Button>
-</div>
 <br>
 	<div class="left-input" id="problem-type">
 	<label for="probType">Problem Type:</label>
@@ -607,7 +545,7 @@ include '../logs.php';
 </td>
 <td>
 <label for="description">Description</label>
-    <textarea id="description-text-area" name="description" rows="39" style ="resize: none;"></textarea>
+    <textarea id="description-text-area" name="description" rows="32" style ="resize: none;"></textarea>
 </td>
 </tr>
 </table>
@@ -649,12 +587,11 @@ include '../logs.php';
 		<th>Date Assigned</th>
 		<th>Serial Number</th>
 		<th>Software</th>
-		<th>Tickets Assigned</th>
 		<th>Description</th>
 
 	</tr></thead>
 	<tbody>
-	<?php
+	<?php 
 	//Gives number of tickets for a problem.
 	function getNumTickets($conn, $problemNo) {
 		//sql for getting tickets
@@ -666,14 +603,14 @@ include '../logs.php';
 	} 
 
 	//sql for getting open problems
-	$sqlOpen = "SELECT * FROM ProblemNumber WHERE Accepted = 'No'";
+	$sqlOpen = "SELECT * FROM ProblemNumber LEFT JOIN Software ON ProblemNumber.SoftwareID = Software.SoftwareID LEFT JOIN ProblemTypes ON ProblemNumber.ProblemTypeID = ProblemTypes.ProblemTypeID WHERE Accepted = 0" ;
 	$resultOpen = $conn->query($sqlOpen);
+	
+	
+	
 
 	if ($resultOpen->num_rows > 0) {
 		while ($row = $resultOpen->fetch_assoc()) {
-			//Gets the number of tickets a problem has
-			$tickets = getNumTickets($conn,$row['ProblemNo']);
-
 			//Checks if there is a serial number
 			if ($row['SerialNumber'] == "") {
 				$serialNumber = "N/A";
@@ -682,22 +619,20 @@ include '../logs.php';
 			}
 
 			//Checks if there is software
-			if ($row['SoftwareName'] == "") {
+			if ($row['SoftwareID'] == "") {
 				$software = "N/A";
 			} else {
-				$software = $row['SoftwareName'];
+				$software = $row2['Software'];
 			}
 
 			//Gives results in table
 			echo "<tr>" .
-			"<td>" . $row['ProblemNo'] . "</td>" .
-			"<td>" . $row['ProblemType'] . "</td>" .
+			"<td>" . $row['ProblemID'] . "</td>" .
+			"<td>" . $row['ProblemType'] . ' '. $row[SubProblemType] ."</td>" .
 			"<td>" . $row['1stSubmissionDate'] . "</td>" .
 			"<td>" . $serialNumber . "</td>" .
 			"<td>" . $software . "</td>" .
-			"<td>" . $tickets . "</td>" . 
 			"<td>" . $row['ProblemDescription'] . "</td>" .
-			"<td>" . $row['Urgency'] . "</td>" .
 			"</tr>";
 		}
 	}
@@ -903,13 +838,8 @@ console.log("Hide" +tr[i].getElementsByTagName("td")[3].textContent);
 
 	
         var datamap = new Map([
-		[document.getElementById("DeleteCommonProblemButton"), document.getElementById("DeleteCommonProblemModal")],
-		[document.getElementById("AddCommonProblemButton"), document.getElementById("AddCommonProblemModal")],
-        	[document.getElementById("CallerButton"), document.getElementById("CallerModal")],
         	[document.getElementById("ProblemButton"), document.getElementById("ProblemModal")],
-		[document.getElementById("SpecialistButton"), document.getElementById("SpecialistModal")],
-	 	[document.getElementById("record-a-call-button"), document.getElementById("RecordCallModal")],
-		[document.getElementById("recordCallCallerButton"), document.getElementById("CallerModal")]
+		[document.getElementById("SpecialistButton"), document.getElementById("SpecialistModal")]
         ]);
 
         datamap.forEach((value, key) => {
@@ -920,20 +850,9 @@ console.log("Hide" +tr[i].getElementsByTagName("td")[3].textContent);
 
          	var span = themodal.getElementsByClassName("close")[0];
 		//make the buttons open modals
-		//the following code lets the website know where the callerModal was opened from
-		if (thebutton == document.getElementById("CallerButton")) {
-			thebutton.addEventListener("click", function (event) {
-                		themodal.style.display = "block";
-				whichArea = 0;
-        	}); } else if (thebutton == document.getElementById("record-a-call-button")) {
-			thebutton.addEventListener("click", function (event) {
-                		themodal.style.display = "block";
-				whichArea = 2;
-         	}); 
-		} else {
-			thebutton.addEventListener("click", function (event) {
-                		themodal.style.display = "block";
-		}); }
+		thebutton.addEventListener("click", function (event) {
+                themodal.style.display = "block";
+		});
 			
 		
             

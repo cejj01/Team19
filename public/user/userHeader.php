@@ -17,21 +17,15 @@
 
 
 <table>
-	<col style="width:8%"><!--Logo-->
-	<col style="width:13%"><!--Links-->
-	<col style="width:13%">
-	<col style="width:13%">
-	<col style="width:13%">
-	<col style="width:13%">
+	<col style="width:12%"><!--Logo-->
+	<col style="width:37%"><!--Home-->
+	<col style="width:37%"> <!--Tickets-->
 	<col style="width:2%"><!--Notif-->
 	<col style="width:10%"><!--Account-->
 	<td><a href="http://teamb019.sci-project.lboro.ac.uk:5019/log-in.php"><img src="/src/Make-It-AllTextWhite.png" alt="Make-It-All Logo" class="logo"></a></td>
 <div class="pageLinks">
 	<td><a href="/user/userHome.php">Home</a></td>
 	<td><a href="/user/userTickets.php">My Tickets</a></td>
-	<td><a href="/account-settings.php">My Account</a></td>
-	<td><a></a></td>
-	<td><a href="http://teamb019.sci-project.lboro.ac.uk:5019/log-in.php">Logout</a> </td>
 <td>
 <!-- Notification Button -->
 <div id="notif_button" onclick="toggleNotifications()"> <img src="/src/notification-bell.png" alt="img"></div>

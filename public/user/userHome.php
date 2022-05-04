@@ -402,8 +402,8 @@ include '../logs.php';
   <?php
   //Selects the list of possible specialists from the database.
   //sql statement for getting all specialists
-  $sqlSpecialists = "SELECT SpecialistID, UserName, Available, Origin FROM Specialist INNER JOIN UserAccounts 
-    ON Specialist.SpecialistID = UserAccounts.UserID";
+  $sqlSpecialists = "SELECT SpecialistID, UserName, Available FROM Specialist LEFT JOIN UserAccounts 
+    ON Specialist.SpecialistID = UserAccounts.PersonnelID";
   //SELECT SpecialistID, UserName FROM `Specialist` INNER JOIN UserAccounts ON Specialist.SpecialistID = UserAccounts.UserID
   //gets result from db
   $resultSpecialists = $conn->query($sqlSpecialists);

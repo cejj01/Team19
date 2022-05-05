@@ -1053,22 +1053,20 @@ function getProblemTypeID($conn,$name) {
 }
 
 //function for submitting a new ticket
-function addTicket($conn, $desc, $callerID, $operator, $problemNo) {
+function addTicket($conn, $callerID, $problemNo) {
   //Gets date & time of submission
-  $callDate = date("Y/m/d"); 
-	$callTime = date("H:i:s"); 
+  $callDate = date("Y/m/d H:i:s"); 
+  
 
   //Gets next ticket number
   $ticketNum = getNextTicket($conn);
 
   //sql for adding a new ticket
-  $sqlNewTicket = "INSERT INTO Tickets VALUES ('$ticketNum', '$desc', '$callerID',
-    '$operator', '$callDate', '$callTime', '$problemNo')";
-
+  $sqlNewTicket = "INSERT INTO Tickets VALUES ('$ticketNum', '$callerID', '$callDate', '$problemNo')";
   //Add records to db
   if ($conn->query($sqlNewTicket)) {
     //logs the new ticket submission
-	newLog($conn,'New Ticket',$problemNo);
+	//newLog($conn,'New Ticket',$problemNo);
   } else {
     echo "Error" . mysqli_error($conn);
   }
@@ -1172,7 +1170,7 @@ echo $operatingSysID;
 
 
   //Add ticket for call
-  //addTicket($conn, $description, $callerID, $operatorID, $problemNum);
+  addTicket($conn, $caller, $problemNum);
 
   //sql for adding a new problem
   $sqlProblem = "INSERT INTO ProblemNumber VALUES ('$problemNum','$problemTypeID','$serial',

@@ -510,7 +510,7 @@ include '../logs.php';
     <select name="operatingSystem" id="OS">
 		<option hidden disabled selected value> -- Select an option -- </option>
 		<option value="Mac">Mac</option>
-		<option value="Window">Windows</option>
+		<option value="Windows">Windows</option>
 		<option value="Linux">Linux</option>
 		<option value="Other">Other</option>
 		<option value="Other">N/A</option>
@@ -1029,14 +1029,28 @@ function getSpecialistID($conn,$name) {
 
 function getSoftwareID($conn,$name) {
   //sql to get software ID
-echo $name;
-
   $sqlSoftwareID = "SELECT SoftwareID FROM Software WHERE Software = '$name'";
   $resultSoftwareID = $conn->query($sqlSoftwareID);
   $SoftwareID = $resultSoftwareID->fetch_assoc()["SoftwareID"];
   return $SoftwareID;
 }
 
+function getOSID($conn,$name) {
+  //sql to get OS ID
+  $sqlOSID = "SELECT OSID FROM OS WHERE OS = '$name'";
+  $resultOSID = $conn->query($sqlOSID);
+  $OSID = $resultOSID->fetch_assoc()["OSID"];
+  return $OSID;
+}
+
+function getProblemTypeID($conn,$name) {
+  //sql to get problemtype ID
+  $names = explode (" ", $name);
+  $sqlProblemTypeID = "SELECT ProblemTypeID FROM ProblemTypes WHERE ProblemType = '$names[0]' AND INSTR(SubProblemType, '$names[1]')";
+  $resultProblemTypeID = $conn->query($sqlProblemTypeID);
+  $ProblemTypeID = $resultProblemTypeID->fetch_assoc()["ProblemTypeID"];
+  return $ProblemTypeID;
+}
 
 //function for submitting a new ticket
 function addTicket($conn, $desc, $callerID, $operator, $problemNo) {
@@ -1123,12 +1137,15 @@ if (isset($_POST["submitProblem"])) {
   $software = $problemTypes[0];
 
   $serial = $_POST["serialNum"];
-  $operatingSys = "1";
+  $operatingSys = $_POST['operatingSystem'];
+echo $operatingSys;
+  $operatingSysID = getOSID($conn,$operatingSys);
+echo $operatingSysID;
   $softwareID = getSoftwareID($conn, $software);
-echo '$softwareID';
+
   $specialistID = getSpecialistID($conn, $_POST["specialist"]);
   //Get specialist ID from name
-  
+  $problemTypeID = getProblemTypeID($conn, $problemType);
 
   $priority = $_POST["priority"];
   $description = $_POST["description"];
@@ -1156,10 +1173,10 @@ echo '$softwareID';
 
   //Add ticket for call
   //addTicket($conn, $description, $callerID, $operatorID, $problemNum);
-  echo $problemNum;
+
   //sql for adding a new problem
   $sqlProblem = "INSERT INTO ProblemNumber VALUES ('$problemNum','$problemTypeID','$serial',
-    '$softwareID','$operatingSys','$description','$solution','$specialistID',
+    '$softwareID','$operatingSysID','$description','$solution','$specialistID',
     '$accepted','$resolved','$callDate', '$solutionDate', '$priority',Null, 'No')";
 
   //Add records to db

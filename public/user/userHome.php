@@ -1020,12 +1020,23 @@ function getCallerID($conn,$name) {
 //Gets specialist ID from name
 function getSpecialistID($conn,$name) {
   //sql to get specialist ID
-  $sqlSpecialistID = "SELECT UserID FROM UserAccounts WHERE UserName = '$name'";
+  $names = explode (" ", $name);
+  $sqlSpecialistID = "SELECT PersonnelID FROM Personnel WHERE FirstName = '$names[0]' AND Surname = '$names[1]'";
   $resultSpecialistID = $conn->query($sqlSpecialistID);
-
-  $specialistID = $resultSpecialistID->fetch_assoc()["UserID"];
+  $specialistID = $resultSpecialistID->fetch_assoc()["PersonnelID"];
   return $specialistID;
 }
+
+function getSoftwareID($conn,$name) {
+  //sql to get software ID
+echo $name;
+
+  $sqlSoftwareID = "SELECT SoftwareID FROM Software WHERE Software = '$name'";
+  $resultSoftwareID = $conn->query($sqlSoftwareID);
+  $SoftwareID = $resultSoftwareID->fetch_assoc()["SoftwareID"];
+  return $SoftwareID;
+}
+
 
 //function for submitting a new ticket
 function addTicket($conn, $desc, $callerID, $operator, $problemNo) {
@@ -1107,11 +1118,18 @@ if (isset($_POST["submitProblem"])) {
   
   //valuse for the new ticket/problem
   $caller = $_SESSION["PersonnelID"];
-  $problemType = "1";
+  $problemType = $_POST['probType'];
+  $problemTypes = explode (" ", $problemType);
+  $software = $problemTypes[0];
+
   $serial = $_POST["serialNum"];
   $operatingSys = "1";
-  $software = "1";
-  $specialistName = "1005";
+  $softwareID = getSoftwareID($conn, $software);
+echo '$softwareID';
+  $specialistID = getSpecialistID($conn, $_POST["specialist"]);
+  //Get specialist ID from name
+  
+
   $priority = $_POST["priority"];
   $description = $_POST["description"];
   $solution = $_POST["solution"];
@@ -1134,22 +1152,14 @@ if (isset($_POST["submitProblem"])) {
   }
 
 
-  //Get specialist ID and caller ID from the names given
-  if (isset($specialistName) && $specialistName != "") {
-   // $specialistID = getSpecialistID($conn,$specialistName);
-  } else {
-    $specialistID = $operatorID;
-	//logs set solution
-	//newLog($conn,'Solution Given',$problemNum);
-  }
 
 
   //Add ticket for call
   //addTicket($conn, $description, $callerID, $operatorID, $problemNum);
   echo $problemNum;
   //sql for adding a new problem
-  $sqlProblem = "INSERT INTO ProblemNumber VALUES ('$problemNum','$problemType','$serial',
-    '$software','$operatingSys','$description','$solution','$specialistID',
+  $sqlProblem = "INSERT INTO ProblemNumber VALUES ('$problemNum','$problemTypeID','$serial',
+    '$softwareID','$operatingSys','$description','$solution','$specialistID',
     '$accepted','$resolved','$callDate', '$solutionDate', '$priority',Null, 'No')";
 
   //Add records to db

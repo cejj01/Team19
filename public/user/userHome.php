@@ -981,9 +981,9 @@ console.log("Hide" +tr[i].getElementsByTagName("td")[3].textContent);
 
 //function for generating next problem number.
 function getNextProblem($conn) {    
-  $sqlPrevProblem = "SELECT MAX(ProblemNo) AS 'ProblemNo' FROM ProblemNumber";
+  $sqlPrevProblem = "SELECT MAX(ProblemID) AS 'ProblemID' FROM ProblemNumber";
   $probResult = mysqli_query($conn, $sqlPrevProblem);
-  $oldProblemNumStr = ($probResult->fetch_assoc())["ProblemNo"];
+  $oldProblemNumStr = ($probResult->fetch_assoc())["ProblemID"];
   $problemNumInt = intval($oldProblemNumStr) + 1;
   $problemNum = strval($problemNumInt);
   return $problemNum;
@@ -1000,9 +1000,9 @@ function getNextProblemType($conn) {
 
 //function for getting next ticket number.
 function getNextTicket($conn) {
-  $sqlPrevTicket = "SELECT MAX(TicketNo) AS 'TicketNo' FROM Tickets";
+  $sqlPrevTicket = "SELECT MAX(TicketID) AS 'TicketID' FROM Tickets";
   $tickResult = mysqli_query($conn, $sqlPrevTicket);
-  $oldticketNumStr = ($tickResult->fetch_assoc())["TicketNo"];
+  $oldticketNumStr = ($tickResult->fetch_assoc())["TicketID"];
   $ticketNumInt = intval($oldticketNumStr) + 1;
   $ticketNum = strval($ticketNumInt);
   return $ticketNum;
@@ -1106,25 +1106,26 @@ if (isset($_POST["submitProblem"])) {
 
   
   //valuse for the new ticket/problem
-  $caller = $_POST["caller"];
-  $problemType = $_POST["probType"];
+  $caller = $_SESSION["PersonnelID"];
+  $problemType = "1";
   $serial = $_POST["serialNum"];
-  $operatingSys = $_POST["operatingSystem"];
-  $software = $_POST["software"];
-  $specialistName = $_POST["specialist"];
+  $operatingSys = "1";
+  $software = "1";
+  $specialistName = "1005";
   $priority = $_POST["priority"];
   $description = $_POST["description"];
   $solution = $_POST["solution"];
-
+  
   //Auto generated values
   $callDate = date("Y/m/d"); 
 	$callTime = date("H:i:s");
+
+
   $ticketNum = getNextTicket($conn);
   $problemNum = getNextProblem($conn);
   $operatorID = "F013103";
   $resolved = "No";
   $solutionDate = "0000-00-00";
-
   //Classifies problem as 'accepted by specialist' if a solution is already given
   if ($solution!=NULL){
     $accepted = "Yes";
@@ -1135,26 +1136,26 @@ if (isset($_POST["submitProblem"])) {
 
   //Get specialist ID and caller ID from the names given
   if (isset($specialistName) && $specialistName != "") {
-    $specialistID = getSpecialistID($conn,$specialistName);
+   // $specialistID = getSpecialistID($conn,$specialistName);
   } else {
     $specialistID = $operatorID;
 	//logs set solution
-	newLog($conn,'Solution Given',$problemNum);
+	//newLog($conn,'Solution Given',$problemNum);
   }
-  $callerID = getCallerID($conn,$caller);
+
 
   //Add ticket for call
-  addTicket($conn, $description, $callerID, $operatorID, $problemNum);
-
+  //addTicket($conn, $description, $callerID, $operatorID, $problemNum);
+  echo $problemNum;
   //sql for adding a new problem
   $sqlProblem = "INSERT INTO ProblemNumber VALUES ('$problemNum','$problemType','$serial',
-    '$software','$operatingSys','$description','$solution',NULL,'$specialistID',
+    '$software','$operatingSys','$description','$solution','$specialistID',
     '$accepted','$resolved','$callDate', '$solutionDate', '$priority',Null, 'No')";
 
   //Add records to db
   if ($conn->query($sqlProblem)){
     //logs new problem
-	newLog($conn,'New Problem',$problemNum);
+	//newLog($conn,'New Problem',$problemNum);
   } else {
     echo "Error" . mysqli_error($conn);
   }

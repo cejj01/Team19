@@ -3,26 +3,23 @@
   if (!isset($_SESSION['ID'])) {
     header("location: /log-in.html");
   }
-  ?>
+?>
 <header>
 <link rel="stylesheet" href="/css/headerStyle.css">
 <title>Make-It-All Helpdesk</title>
 
 <div id="Head">
 
-
 <!-- Links to each page -->
-
 <div id="headLinks">
-
 
 <table>
 	<col style="width:8%"><!--Logo-->
-	<col style="width:13%"><!--Links-->
-	<col style="width:13%">
-	<col style="width:13%">
-	<col style="width:13%">
-	<col style="width:13%">
+	<col style="width:16%"><!--Links-->
+	<col style="width:16%">
+	<col style="width:16%">
+	<col style="width:16%">
+	<col style="width:16%">
 	<col style="width:2%"><!--Notif-->
 	<col style="width:10%"><!--Account-->
 <td><a href="http://teamb019.sci-project.lboro.ac.uk:5019/log-in.php"><img src="/src/Make-It-AllTextWhite.png" alt="Make-It-All Logo" class="logo"></a></td>
@@ -57,9 +54,7 @@
 </div>
 </td>
 
-</table>	
-	
-
+</table>
 
 </div>
 </div>
@@ -70,9 +65,7 @@
 </header>
 
 <?php include '../loadProfile.php'?>
-
 <?php include '../notifications.php'?>
-
 <?php include '../showNotifications.php'?>
 
 <script src="/js/headerScript.js"></script>

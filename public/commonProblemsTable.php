@@ -112,7 +112,7 @@
             while ($row = $resultHardwareSub->fetch_assoc()) {
               $subPType = $row["SubProblemType"];
               if ($subPType != "") {
-                $value = $pType . "-" . $subPType;
+                $value = $pType . " " . $subPType;
                 echo "<option value='$value'>$value</option>";
               }
             }
@@ -145,7 +145,7 @@
             while ($row = $resultSoftwareSub->fetch_assoc()) {
               $subPType = $row["SubProblemType"];
               if ($subPType != "") {
-                $value = $pType . "-" . $subPType;
+                $value = $pType . " " . $subPType;
                 echo "<option value='$value'>$value</option>";
               }
             }

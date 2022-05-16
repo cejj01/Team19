@@ -34,25 +34,29 @@
       if ($result->num_rows > 0) {
         // output data of each row
         while($row = $result->fetch_assoc()) {
-          // Save the UserID to a session variable
-          $_SESSION['ID'] = $row['LoginID'];
-	  $sessID = "sdf"+strval($_SESSION['ID'])+"sdf";
+          // Save the PersonnelID to a session variable
+          $_SESSION['ID'] = $row['PersonnelID'];
+
           // Save the user role to $userRole
           $userRole = $row['Role'];
+          $_SESSION['Role'] = $userRole;
 
           // Depending on the user role redirect the user to the appropriate landing page
           switch ($userRole) {
             case "operator":
-              echo "<script>alert('Hello operator '+$sessID ); window.location.assign('/operator/op-new-ticket.php');</script>";
+              echo '<script type="text/javascript"> window.open("operator/op-new-ticket.php", "_self");</script>';
             break;
             case "specialist":
-              echo "<script>alert('Hello specialist'); window.location.assign('/specialist/sp-inbox.php');</script>";
+              echo '<script type="text/javascript"> window.open("specialist/sp-inbox.php", "_self");</script>';
             break;
             case "admin":
-              echo "<script>alert('Hello admin'); window.location.assign('/admin/admin-logs.php');</script>";
+              echo '<script type="text/javascript"> window.open("admin/admin-logs.php", "_self");</script>';
             break;
             case "analyst":
-              echo "<script>alert('Hello analyst'); window.location.assign('/analyst/anal-analytics.php');</script>";
+              echo '<script type="text/javascript"> window.open("analyst/anal-analytics.php", "_self");</script>';
+            break;
+            case "user":
+              echo '<script type="text/javascript"> window.open("user/userHome.php", "_self");</script>';
             break;
           }
           

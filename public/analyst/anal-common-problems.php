@@ -18,7 +18,6 @@
 
 <br>
 
-
 <link rel="stylesheet" href="/css/modalStyle.css">
 <link rel="stylesheet" href="/css/probTableStyle.css">
 <div class="page-container">

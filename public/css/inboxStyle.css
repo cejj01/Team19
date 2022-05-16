@@ -4,14 +4,14 @@
 #inbox {
 	width: 100%;
 	border: 2px solid var(--border-colour);
-	height: 500px;
+	height: 700px;
 }
 .msg {
 	background-color: #666666;
 	color: #ffffff;
 	width: 100%;
 	border: 2px solid #999999;
-	padding; 5px;
+	padding: 5px;
 }
 #messages, .msgContent{
 	display: inline-block; 
@@ -26,6 +26,12 @@
 	height: 100%;
 	border-right: 4px solid var(--border-colour);
 }
+
+.low {
+	border: 2px solid green;
+	background-color: #888866;
+}
+
 .med {
 	border: 2px solid orange;
 	background-color: #887766;

@@ -412,7 +412,7 @@ include '../logs.php';
   if ($resultSpecialists->num_rows > 0){
     while($row = $resultSpecialists->fetch_assoc()) {
       //Ensures only available specialists are shown
-      if ($row['Available'] == "Yes") {
+      if ($row['Available'] == "1") {
         $specID = $row['SpecialistID'];
 
         echo "<tr>";
@@ -520,11 +520,6 @@ include '../logs.php';
 </div>
 <br>
 
-<div class="left-input">
-<label for="software">Software</label>
-    <input name="software" type="text" id="software" oninput="FilterOpenProblems2()"disabled>
-</div>
-
 <br>
 <div class="right-input">
 <label  for="specialist">Specialist:</label>
@@ -551,10 +546,6 @@ include '../logs.php';
 </tr>
 </table>
 <table>
-<td>
-<label for="solution">Solution</label>
-<textarea id="solution" name="solution" rows="10" style ="resize: none;"></textarea>
-</td>
 </table>
 <br>
 <br>
@@ -562,7 +553,7 @@ include '../logs.php';
 
 <br>
 <br>
-<input type="submit" name ="submitProblem" value="Create New Ticket">
+<input type="submit" id="submitProblem" name ="submitProblem" value="Create New Ticket">
 </form>
 
 </div>
@@ -578,7 +569,7 @@ include '../logs.php';
 
 <!-- Open Problems page container -->
 <div class="page-container" >
-<p class= "container-header"> Open Problems </p>
+<p class= "container-header"> Your Problems </p>
 <hr>
 <table class="dark-table fixPadding" id="OpenProblemsTable" border='1'>
 	<thead>
@@ -588,7 +579,7 @@ include '../logs.php';
 		<th>Date Assigned</th>
 		<th>Serial Number</th>
 		<th>Software</th>
-		<th>Description</th>
+		<th>OS</th>
 
 	</tr></thead>
 	<tbody>
@@ -604,36 +595,38 @@ include '../logs.php';
 	} 
 
 	//sql for getting open problems
-	$sqlOpen = "SELECT * FROM ProblemNumber LEFT JOIN Software ON ProblemNumber.SoftwareID = Software.SoftwareID LEFT JOIN ProblemTypes ON ProblemNumber.ProblemTypeID = ProblemTypes.ProblemTypeID WHERE Accepted = 0" ;
+	$PersonnelID = $_SESSION['ID'];
+	$sqlOpen = "SELECT ProblemNumber.ProblemID, ProblemNumber.ProblemDescription, ProblemTypes.ProblemType, ProblemNumber.1stSubmissionDate, ProblemNumber.SerialNumber, Software.Software, OS.OS 
+	FROM ProblemNumber LEFT JOIN Tickets ON Tickets.ProblemID = ProblemNumber.ProblemID LEFT JOIN ProblemTypes ON ProblemTypes.ProblemTypeID = ProblemNumber.ProblemTypeID 
+	LEFT JOIN Software ON Software.SoftwareID = ProblemNumber.SoftwareID 
+	LEFT JOIN OS ON OS.OSID = ProblemNumber.OSID WHERE Tickets.PersonnelID = $PersonnelID";
+	//$sqlOpen = "SELECT * FROM ProblemNumber LEFT JOIN Software ON ProblemNumber.SoftwareID = Software.SoftwareID LEFT JOIN ProblemTypes ON ProblemNumber.ProblemTypeID = ProblemTypes.ProblemTypeID WHERE Accepted = 0" ;
 	$resultOpen = $conn->query($sqlOpen);
-	
-	
-	
 
 	if ($resultOpen->num_rows > 0) {
 		while ($row = $resultOpen->fetch_assoc()) {
 			//Checks if there is a serial number
-			if ($row['SerialNumber'] == "") {
+			/*if ($row['SerialNumber'] == "") {
 				$serialNumber = "N/A";
 			} else {
 				$serialNumber = $row['SerialNumber'];
 			}
 
 			//Checks if there is software
-			if ($row['SoftwareID'] == "") {
+			if ($row['SoftwareID'] == "0") {
 				$software = "N/A";
 			} else {
-				$software = $row2['Software'];
-			}
+				$software = $row['Software'];
+			}*/
 
 			//Gives results in table
 			echo "<tr>" .
 			"<td>" . $row['ProblemID'] . "</td>" .
-			"<td>" . $row['ProblemType'] . ' '. $row[SubProblemType] ."</td>" .
+			"<td>" . $row['ProblemType'] . "</td>" .
 			"<td>" . $row['1stSubmissionDate'] . "</td>" .
-			"<td>" . $serialNumber . "</td>" .
-			"<td>" . $software . "</td>" .
-			"<td>" . $row['ProblemDescription'] . "</td>" .
+			"<td>" . $row['SerialNumber'] . "</td>" .
+			"<td>" . $row['Software'] ."</td>" .
+			"<td>" . $row['OS'] ."</td>" .
 			"</tr>";
 		}
 	}
@@ -1070,7 +1063,6 @@ function addTicket($conn, $callerID, $problemNo) {
   } else {
     echo "Error" . mysqli_error($conn);
   }
-  
 }
 
 //Checks new problem type form has been submit and then adds submission to the db
@@ -1125,11 +1117,11 @@ if (isset($_POST["submitCallLog"])) {
 
 //Adds new problem to database
 if (isset($_POST["submitProblem"])) {
+	
   include '../databaseConnection.php';
-
   
   //valuse for the new ticket/problem
-  $caller = $_SESSION["PersonnelID"];
+  $caller = $_SESSION["ID"];
   $problemType = $_POST['probType'];
   $problemTypes = explode (" ", $problemType);
   $software = $problemTypes[0];
@@ -1144,10 +1136,19 @@ echo $operatingSysID;
   $specialistID = getSpecialistID($conn, $_POST["specialist"]);
   //Get specialist ID from name
   $problemTypeID = getProblemTypeID($conn, $problemType);
+ $priority = $_POST["priority"];
+$prioritynum = 1;
+  if ($priority == "High") {
+	$prioritynum = 3;
+	}
+ if ($priority == "Medium") {
+	$prioritynum = 2;
+	}
+if ($priority == "Low") {
+	$prioritynum = 1;
+	}
 
-  $priority = $_POST["priority"];
   $description = $_POST["description"];
-  $solution = $_POST["solution"];
   
   //Auto generated values
   $callDate = date("Y/m/d"); 
@@ -1175,7 +1176,7 @@ echo $operatingSysID;
   //sql for adding a new problem
   $sqlProblem = "INSERT INTO ProblemNumber VALUES ('$problemNum','$problemTypeID','$serial',
     '$softwareID','$operatingSysID','$description','$solution','$specialistID',
-    '$accepted','$resolved','$callDate', '$solutionDate', '$priority',Null, 'No')";
+    '1','$resolved','$callDate', '$solutionDate', '$prioritynum',Null, 'No')";
 
   //Add records to db
   if ($conn->query($sqlProblem)){

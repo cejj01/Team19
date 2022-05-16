@@ -50,16 +50,16 @@
 	<tbody>
 	<?php
 	include '../databaseConnection.php';
-	//sql for getting open problems
-	$sqlClosed = "SELECT * FROM ProblemNumber WHERE Accepted = 'Yes'";
+	//sql for getting closed problems
+	$sqlClosed = "SELECT * FROM ProblemNumber WHERE Resolved = 1";
 	$resultClosed = $conn->query($sqlClosed);
 
 	if ($resultClosed->num_rows > 0) {
 		while ($row = $resultClosed->fetch_assoc()) {
 			//Gives results in table
 			echo "<tr>" .
-			"<td>" . $row['ProblemNo'] . "</td>" .
-			"<td>" . $row['ProblemType'] . "</td>" .
+			"<td>" . $row['ProblemID'] . "</td>" .
+			"<td>" . $row['ProblemTypeID'] . "</td>" .
 			"<td>" . $row['1stSubmissionDate'] . "</td>" .
 			"<td>" . $row['SolutionDate'] . "</td>" .
 			"<td>" . $row['ProblemDescription'] . "</td>" .

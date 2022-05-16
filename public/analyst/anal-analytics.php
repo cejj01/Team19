@@ -116,16 +116,16 @@
 		<th>Solved Tickets</th>
 	</tr>
 	<tr>
-		<td id="noCurrentlyOpenProblems">7</td>
-		<td id="noSolvedTickets">3</td>
+		<td id="noCurrentlyOpenProblems">10</td>
+		<td id="noSolvedTickets">32</td>
 	</tr>
 	<tr>
 		<th>Avg. Tickets per Specialist</th>
 		<th>% Solved without Specialist</th>
 	</tr>
 	<tr>
-		<td>9</td>
-		<td id="nonSpecialistSolved">0%</td>
+		<td>6</td>
+		<td id="nonSpecialistSolved">27%</td>
 	</tr>
 	</table>
 </div>
@@ -209,11 +209,11 @@
         <?php include '../databaseConnection.php';
 				getProblemTypeData($conn);
         function getProblemTypeData ($conn) {
-          $sqlGetProblemTypeData = "SELECT ProblemType, COUNT(ProblemType) FROM ProblemNumber GROUP BY ProblemType";
+          $sqlGetProblemTypeData = "SELECT ProblemNumber.ProblemTypeID, ProblemTypes.ProblemType, COUNT(ProblemNumber.ProblemTypeID) FROM ProblemNumber LEFT JOIN ProblemTypes ON ProblemTypes.ProblemTypeID = ProblemNumber.ProblemTypeID GROUP BY ProblemNumber.ProblemTypeID";
           $resultGetProblemTypeData = $conn->query($sqlGetProblemTypeData);
           if ($resultGetProblemTypeData->num_rows > 0) {
             while ($row = $resultGetProblemTypeData->fetch_assoc()) {
-              echo "['".$row['ProblemType']."',".$row['COUNT(ProblemType)']."],";
+              echo "['".$row['ProblemType']."',".$row['COUNT(ProblemTypeID)']."],";
             }
           }
       }?> 

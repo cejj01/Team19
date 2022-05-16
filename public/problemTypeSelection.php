@@ -22,7 +22,7 @@ if ($resultHardwareProb->num_rows > 0) {
             while ($row = $resultHardwareSub->fetch_assoc()) {
                 $subPType = $row["SubProblemType"];
                 if ($subPType != "") {
-                $value = $pType . "-" . $subPType;
+                $value = $pType . " " . $subPType;
                 echo "<option value='$value'>$value</option>";
               }
             }
@@ -52,7 +52,7 @@ if ($resultSoftwareProb->num_rows > 0) {
             while ($row = $resultSoftwareSub->fetch_assoc()) {
                 $subPType = $row["SubProblemType"];
                 if ($subPType != "") {
-                    $value = $pType . "-" . $subPType;
+                    $value = $pType . " " . $subPType;
                     echo "<option class = 'SoftwareOption' value='$value'>$value</option>";
                 }
             }

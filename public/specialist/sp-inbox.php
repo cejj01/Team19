@@ -24,11 +24,60 @@
 .msgFooter {
 	height: 30%;
 }
+
+#chatheader {
+text-align:center;
+}
+#chatbox {
+width: 100%;
+height:50%;
+}
+#messagebox {
+width: 100%;
+}
+#specialistID {
+display: none;
+}
+
+
 </style>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
+
+<?php
+include 'loadProfilePage.php';
+include 'databaseConnection.php';
+
+		if (isset($_POST['referToExternal'])) {
+			$probIdToExtern = $_POST['fooProbID'];
+			$externalSpec = $_POST['referToExternal'];
+			if ($externalSpec != "--"){
+				//echo $availability;
+				//echo $_SESSION['ID'];
+				$sqlPutExternal = "UPDATE ProblemNumber SET Notes = 'sent to external specialist with external id ".$externalSpec."', SpecialistID = 0 WHERE ProblemID = ".$probIdToExtern;
+				//echo $sqlPutExternal;
+				$result = $conn->query($sqlPutExternal);
+			}
+			unset($_POST['avail']);
+		}
+
+		$sqlGetExternal = "SELECT Firstname, Surname, Speciality, Company, Email FROM ExternalSpecialists";
+		//echo ($sqlGetMySpecialities);
+		//echo (strval($_SESSION['ID']));
+		$externalQuery = $conn->query($sqlGetExternal);
+		$myExternal = array();
+		if ($externalQuery->num_rows > 0) {
+			while($row = $externalQuery->fetch_assoc()) {
+				array_push($myExternal, [$row['Firstname'], $row['Surname'], $row['Speciality'], $row['Company'], $row['Email']]);;
+			//echo ($row['ProblemTypeID']);
+			}
+		} 
+	
+
+
+?>
 
 <script>
 
@@ -88,73 +137,6 @@ function ProblemTypeFilter() {
         }
     }
 }
-
-function UrgencyFilter() {
-    var input, filter, table, tr, td, i, userInput;
-    input = document.getElementById("UrgencyFilter");
-    filter = input.value.toLowerCase();
-    table = document.getElementById("incoming");
-    tr = table.getElementsByTagName("button");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("label")[2];
-        if (td) {
-            userInput = td.textContent || td.innerText;
-            if (userInput.toLowerCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
-}
-
-function filterProblems() {
-	var value;
-	index = 0;
-	value = document.getElementById("sortOption");
-
-	table = document.getElementById("incoming");
-	switching = true;
-	if (value == "placeholder") {
-		index = 0;
-	} else if (value == "problemID") {
-		index = 0;
-	} else if (value == "problemType") {
-		index = 1;
-	} else if (value == "urgency") {
-		index = 2;
-	} else if (value == "date") {
-		index = 0;
-	}
-	while (switching) {
-		//start by saying: no switching is done:
-		switching = false;
-		rows = table.rows;
-		/*Loop through all table rows (except the
-		first, which contains table headers):*/
-		tr = table.getElementsByTagName("button");
-		for (i = 0; i < (rows.length - 1); i++) {
-			//start by saying there should be no switching:
-			shouldSwitch = false;
-			/*Get the two elements you want to compare,
-			one from current row and one from the next:*/
-			x = rows[i].getElementsByTagName("label")[value];
-			y = rows[i + 1].getElementsByTagName("label")[value];
-			//check if the two rows should switch place:
-			if (Number(x.innerHTML) > Number(y.innerHTML)) {
-				//if so, mark as a switch and break the loop:
-				shouldSwitch = true;
-				break;
-			}
-		}
-		if (shouldSwitch) {
-			/*If a switch has been marked, make the switch
-			and mark that a switch has been done:*/
-			rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-			switching = true;
-		}
-	}
-}
 </script>
 <br>
 
@@ -165,7 +147,6 @@ function filterProblems() {
 		<div id="messages">
 			<div id="filters">
 				<input type="text" id="ProblemIDInput" onkeyup="ProblemIDFilter()" placeholder="Filter by Problem ID">
-				<!--<input type="text" id="ProblemTypeIDInput" onkeyup="ProblemTypeFilter()" placeholder="Filter by Problem Type ID">-->
 				<?php
 				$ProblemsArray = array();
 				$sql = "SELECT ProblemTypeID, ProblemType FROM ProblemTypes";
@@ -183,15 +164,6 @@ function filterProblems() {
 				echo '</select>';
 				}
 				?>
-				<!--<input type="text" id="UrgencyInput" onkeyup="UrgencyFilter()" placeholder="Filter by Urgency">
-				<input name="searchBar" type="text" id="searchBar" placeholder="Search..." onkeyup="SearchFilter()">
-				<select name="sortOption" id="sortOption" onchange="filterProblems()">
-					<option value="placeholder">Sort By ...</option>
-					<option value="problemID">Problem ID</option>
-					<option value="problemType">Problem Type (A-Z)</option>
-					<option value="urgency">Urgency</option>
-					<option value="date">Date (Newest)</option>
-				</select>-->
 			</div>
 			<div id="incoming">
 			</div>
@@ -205,8 +177,8 @@ function filterProblems() {
 					<tr class="hiddenContent" hidden>
 						<th>Problem Type:</th>
 						<td id="probType"></td>
-						<th>Personnel:</th>
-						<td id="personnelName"></td>
+						<th>Specialist Name:</th>
+						<td id="spName"></td>
 					</tr>
 					</tbody>
 				</table>
@@ -219,12 +191,14 @@ function filterProblems() {
 						<td id="probNum"></td>
 						<th>Priority:</th>
 						<td id="priority"></td>
-						<<th>Personnel ID:</th>
-						<td id="personnelID"></td>
-					</tr>
-					<tr>
 						<th>Serial#:</th>
 						<td id="serialNum"></td>
+						<!--<th>Personnel ID:</th>
+						<td id="PersonnelID"></td>-->
+					</tr>
+					<tr>
+						<!--<th>Serial#:</th>
+						<td id="serialNum"></td>-->
 						<th>Software:</th>
 						<td id="software"></td>
 						<th>OS:</th>
@@ -241,12 +215,29 @@ function filterProblems() {
 				<br>
 				<textarea id="solution" class="hiddenContent" name="solution" rows="2" readonly hidden></textarea>
 				<br>
-				<button id="viewTickets" class="hiddenContent" onclick="getTickets()" hidden>View Tickets</button>
+				<button id="viewTickets" class="hiddenContent" onclick="getTickets()" style="width: 10%; height: 30px;" hidden>Chat</button>
+
+				<form action="" method="post" id="curSpecChange" class="hiddenContent" hidden>
+					<label for="referToExternal">Refer to external specialist:</label>
+					<select name = "referToExternal">
+						<option> -- </option>;
+						<?php
+						foreach ($myExternal AS $external) {
+							echo "<option value='$external[0]'>".$external[0]." - ".$external[1]." - ".$external[2]." - ".$external[3]." - ".$external[4]."</option>";
+						}
+						?>
+
+					</select>
+					<input type="hidden" name="fooProbID" id="fooProbID" />
+					<p><input type="submit" value="Refer To External Specialist"/></p>
+				</form>
+				<script>echo idToSendForExternal </script>
+
 			</div>
 		<div class="msgFooter">
 			<hr>
 				<!--Operator must confirm the problem is solved before marking a specialist ticket as solve. Should not be able to solve without confirming-->
-				<label for="followUp" class="hiddenContent" hidden>Confirmed with caller?:</label>
+				<label for="followUp" class="hiddenContent" hidden>Confirmed with user?:</label>
 				<input type="checkbox" id="followUp" name="followUp" onclick="allowSolve()" class="hiddenContent" hidden>
 				<br>
 				<button class="accept hiddenContent" id="solveBtn" onclick="solveProblem()" hidden disabled>Mark Solved</button>
@@ -260,7 +251,7 @@ function filterProblems() {
 	</div>
  </div>
 
-<?php include 'specialistInbox.php' ?>
+<?php include 'operatorInbox.php' ?>
 
 <link rel="stylesheet" href="/css/modalStyle.css">
 <link rel="stylesheet" href="/css/probTableStyle.css">
@@ -272,26 +263,22 @@ function filterProblems() {
   <div class="modal-content">
     <div class="modal-header">
       <span class="close">&times;</span>
-      <h2>Related Tickets</h2>
+      <h2>Chat</h2>
 	<hr>
     </div>
-	<div id="tableDiv">
-		<table class="dark-table" id="viewTicketsTable">
-		<col style="width:25%"><!--#-->
-		<col style="width:25%"><!--CallerID-->
-		<col style="width:25%"><!--Name-->
-		<col style="width:25%"><!--Phone#-->
-		<thead>
-		<tr>
-			<th>Ticket#</th>
-			<th>CallerID</th>
-			<th>Name</th>
-			<th>Phone#</th>
-		</tr></thead>
-		<tbody id="ticketTableBody">
-		</tbody>
-		</table>
-	</div>
+	
+<div style="width:100%;">
+<form method ="post">
+
+<input name="specialistID" type="text" id="specialistID"/>
+<textarea id="chatbox" name = "chatbox">
+</textarea>
+<textarea id="messagebox" name="messagebox" >
+</textarea>
+<div style="text-align:center;">
+<input type="submit" name="submitMessage" id="submitMessage" value="Send Message"/>
+</form>
+</div>
 	<br><br>
   </div>
 </div>
@@ -342,18 +329,25 @@ function loadMessages(){
 	var inboxThumbnail = <?php echo json_encode($inboxThumbnail);?>;
 	var numberOfProblems = inboxThumbnail.length;
 	var inbox = document.getElementById('incoming');
+	var priority;
 
 	for (var i=0; i < numberOfProblems; i++) {
 		var newMsg = document.createElement("button");
 		newMsg.classList.add("msg");
-		if (inboxThumbnail[i]['ProblemPriority']=="Medium"){
+		if (inboxThumbnail[i]['ProblemPriority']==1){
+			newMsg.classList.add("low");
+			priority = "Low";
+		} else if (inboxThumbnail[i]['ProblemPriority']==2){
 			newMsg.classList.add("med");
-		}
-		else if (inboxThumbnail[i]['ProblemPriority']=="High"){
+			priority = "Med";
+		} else if (inboxThumbnail[i]['ProblemPriority']==3){
 			newMsg.classList.add("high");
+			priority = "High";
+		} else {
+			priority = "None";
 		}
 		
-		newMsg.innerHTML = '<label>Problem ID: '+inboxThumbnail[i]['ProblemID']+'</label> <br> <label>Problem Type ID: '+inboxThumbnail[i]['ProblemTypeID']+'</label> <br> <label>Urgency: '+inboxThumbnail[i]['ProblemPriority']+'</label> </tr>';
+		newMsg.innerHTML = '<label>Problem ID: '+inboxThumbnail[i]['ProblemID']+'</label> <br> <label>Problem Type ID: '+inboxThumbnail[i]['ProblemTypeID']+'</label> <br> <label>Priority: '+priority+'</label> </tr>';
 		newMsg.setAttribute('onclick', "loadInbox('"+inboxThumbnail[i]['ProblemID']+"')");
 		inbox.appendChild (newMsg);
 	}
@@ -361,17 +355,15 @@ function loadMessages(){
 
 async function loadInbox(probNum){
 	var inboxContents;
-	
+	//use ajax here?	
 	const xhr = new XMLHttpRequest();
 	xhr.onload = await function(){
 		inboxContents = JSON.parse(this.responseText);
 		
 		document.getElementById("probType").innerHTML = inboxContents[0]['ProblemType'];
-		document.getElementById("specialistID").innerHTML = inboxContents[0]['SpecialistID'];
+		document.getElementById("spName").innerHTML = inboxContents[0]['SpecialistID'];
 		document.getElementById("probNum").innerHTML = inboxContents[0]['ProblemID'];
 		document.getElementById("priority").innerHTML = inboxContents[0]['ProblemPriority'];
-		document.getElementById("personnelID").innerHTML = inboxContents[0]['PersonnelID'];
-		document.getElementById("personnelName").innerHTML = inboxContents[0]['FirstName'];
 		document.getElementById("serialNum").innerHTML = inboxContents[0]['SerialNumber'];
 		document.getElementById("software").innerHTML = inboxContents[0]['Software'];
 		document.getElementById("OSName").innerHTML = inboxContents[0]['OS'];
@@ -381,8 +373,10 @@ async function loadInbox(probNum){
 		document.getElementById("followUp").checked = false;
 		document.getElementById("solveBtn").disabled = true;
 		getTickets();
+
+		document.getElementById('fooProbID').value = document.getElementById("probNum").innerText;
 		
-		if (inboxContents[0]['Resolved']=='Yes'){
+		if (inboxContents[0]['Resolved']==1){
 			document.getElementById("solutionLbl").innerHTML = 'Solution:';
 			document.getElementById("solution").innerHTML = inboxContents[0]['Solution'];
 		}
@@ -392,7 +386,7 @@ async function loadInbox(probNum){
 		}
 	}
 	//xhr.onerror
-	xhr.open('POST', 'spWorkspace.php');
+	xhr.open('POST', 'operatorWorkspace.php');
 	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhr.send('probNum='+probNum);
 	
@@ -400,20 +394,22 @@ async function loadInbox(probNum){
 		for(var x=0; x<hidden.length; x++){
 			hidden[x].removeAttribute("hidden");
 		}	
+	
 }
 
 async function solveProblem(){
 	const xhr = new XMLHttpRequest();
 	var probNum = document.getElementById("probNum").innerText;
+	var solution = document.getElementById("notes").innerText;
 	xhr.onload = await function(){;
 
 		alert("Solution accepted");
 		window.location.reload();
 	}
 	//xhr.onerror
-	xhr.open('POST', 'spWorkspace.php');
+	xhr.open('POST', 'specialistWorkspace.php');
 	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhr.send('probNum='+probNum+'&accepted="1"');
+	xhr.send('probNum='+probNum+'&solution='+solution);
 }
 
 async function returnProblem(){
@@ -425,7 +421,7 @@ async function returnProblem(){
 		window.location.reload();
 	}
 	//xhr.onerror
-	xhr.open('POST', 'spWorkspace.php');
+	xhr.open('POST', 'operatorWorkspace.php');
 	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhr.send('probNum='+probNum+'&rejectNotes='+rejectNotes);
 }
@@ -459,7 +455,7 @@ async function getTickets(){
 
 	}
 	//xhr.onerror
-	xhr.open('POST', 'spWorkspace.php');
+	xhr.open('POST', 'operatorWorkspace.php');
 	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhr.send('probNum='+probNum+'&getTickets="1"');
 }

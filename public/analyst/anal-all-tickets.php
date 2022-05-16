@@ -48,9 +48,8 @@ include '../logs.php';
 		<th>Date Assigned</th>
 		<th>Serial Number</th>
 		<th>Software</th>
-		<th>Tickets Assigned</th>
+		<th>OS</th>
 		<th>Description</th>
-		<th>Urgency</th>
 	</tr></thead>
 	<tbody>
 	<?php
@@ -58,7 +57,7 @@ include '../logs.php';
 	//Gives number of tickets for a problem.
 	function getNumTickets($conn, $problemNo) {
 		//sql for getting tickets
-		$sqlNumTicket = "SELECT COUNT(TicketNo) AS 'Ticks' FROM Tickets WHERE ProblemNo = '$problemNo'";
+		$sqlNumTicket = "SELECT COUNT(TicketID) AS 'Ticks' FROM Tickets WHERE ProblemID = '$problemNo'";
 		$resultNumTicket = $conn->query($sqlNumTicket);
 
 		$numTickets = ($resultNumTicket->fetch_assoc())['Ticks'];
@@ -66,43 +65,48 @@ include '../logs.php';
 	} 
 
 	//sql for getting open problems
-	$sqlOpen = "SELECT * FROM ProblemNumber";
+	$sqlOpen = "SELECT ProblemNumber.ProblemID, ProblemNumber.ProblemDescription, ProblemTypes.ProblemType, ProblemNumber.1stSubmissionDate, ProblemNumber.SerialNumber, Software.Software, OS.OS 
+	FROM ProblemNumber LEFT JOIN ProblemTypes ON ProblemTypes.ProblemTypeID = ProblemNumber.ProblemTypeID 
+	LEFT JOIN Software ON Software.SoftwareID = ProblemNumber.SoftwareID LEFT JOIN OS ON OS.OSID = ProblemNumber.OSID";
+	//$sqlOpen = "SELECT * FROM ProblemNumber";
 	$resultOpen = $conn->query($sqlOpen);
 
 	if ($resultOpen->num_rows > 0) {
 		while ($row = $resultOpen->fetch_assoc()) {
 			//Gets the number of tickets a problem has
-			$tickets = getNumTickets($conn,$row['ProblemNo']);
+			$tickets = getNumTickets($conn,$row['ProblemID']);
 
 			//Checks if there is a serial number
-			if ($row['SerialNumber'] == "") {
+			/*if ($row['SerialNumber'] == "") {
 				$serialNumber = "N/A";
 			} else {
 				$serialNumber = $row['SerialNumber'];
-			}
+			}*/
 
 			//Checks if there is software
-			if ($row['Software'] == "") {
+			/*if ($row['SoftwareID'] == 0) {
 				$software = "N/A";
 			} else {
-				$software = $row['Software'];
-			}
+				$sqlSoftware = "SELECT * FROM Software WHERE SoftwareID = $row['SoftwareID']";
+				$resultSoftware = mysqli_query($sqlSOftware);
+				$rowSoftware = mysqli_fetch_assoc($result);
+				$software = $rowSoftware['Software'];
+			}*/
 
 			//Gives results in table
 			echo "<tr>" .
-			"<td>" . $row['ProblemNo'] . "</td>" .
+			"<td>" . $row['ProblemID'] . "</td>" .
 			"<td>" . $row['ProblemType'] . "</td>" .
 			"<td>" . $row['1stSubmissionDate'] . "</td>" .
-			"<td>" . $serialNumber . "</td>" .
-			"<td>" . $software . "</td>" .
-			"<td>" . $tickets . "</td>" . 
-			"<td>" . $row['ProblemDescription'] . "</td>" .
-			"<td>" . $row['Urgency'] . "</td>" .
+			"<td>" . $row['SerialNumber'] . "</td>" .
+			"<td>" . $row['Software'] ."</td>" .
+			"<td>" . $row['OS'] ."</td>" .
+			"<td>" . $row['ProblemDescription'] ."</td>" .
 			"</tr>";
 		}
 	}
 	?>
-			
+
 </tbody>
 </table>
 </div>

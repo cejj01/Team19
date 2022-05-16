@@ -1,87 +1,27 @@
-
-    <?php
-	/*
-    // Create connection to database
-    $dbname = "coa123cdb";
-    $username = "coa123cycle";
-    $password = "bgt87awx";
-    $servername = "localhost";
-
-    // Create connection
-    $conn = mysqli_connect($servername, $username, $password, $dbname);
-    
-    $problemNo = $_POST['problemNo'];
-
-    if ($conn->connect_error) {
-      die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Get information about this problem from the database
-    $sql = "SELECT ProblemType, SerialNumber, SpecialistID, SoftwareName, OS, ProblemDescription FROM ProblemNumber WHERE ProblemNo = '$problemNo'";
-    $result = $conn->query($sql);
-
-    // Save problem information in variables and echo to frontend
-    if ($result->num_rows > 0) {
-      echo $problemType = ($result->fetch_assoc())['ProblemType'];
-      echo $serialNumber = ($result->fetch_assoc())['SerialNumber'];
-      echo $softwareName = ($result->fetch_assoc())['SoftwareName'];
-      echo $OS = ($result->fetch_assoc())['OS'];
-      echo $problemDesciption = ($result->fetch_assoc())['ProblemDescription'];
-    }
-
-    // Get information about specialists so operators can select the correct one
-    $sqlGetSpecialistInfo = "SELECT Specialist.SpecialistID, Specialist.Availability, Specialities.Speciality FROM Specialist INNER JOIN Specialities ON Specialist.SpecialistID = Specialities.SpecialistID";
-    $resultGetSpecialistInfo =  $conn->query($sql);
-
-    $arrayOfSpecialists = array();
-
-    if ($resultGetSpecialistInfo->num_rows > 0) {
-      while($row = $result->fetch_assoc()) {
-        $arrayOfSpecialists[] = $row;
-      }
-    }
-
-    /* Needs updating so that the following query is run when a submit button is pressed */
-	/*
-    echo json_encode($arrayOfSpecialists);
-
-    $specialistID = $_POST['SpecialistID'];
-
-    $sqlReassignToNewSpecialist = "UPDATE ProblemNumber SET SpecialistID = '$specialistID', returnToOperator = NULL WHERE ProblemNo = '$problemNo'";
-
-    $conn->close();
-
-
-
-	*/
-    ?>
-
 <?php
 include "../databaseConnection.php";
 
-
-
 if(isset($_POST['probNum'])){
-	$problemNum=$_POST['probNum'];
-	
+	$ProblemID=$_POST['probNum'];
 	
 	if (isset($_POST['rejectNotes'])) {
 		$rejectNotes = $_POST['rejectNotes'];
-		$sqlReturnToOperator = "UPDATE ProblemNumber SET Notes = '".$rejectNotes."', returnToOperator = 'No' WHERE ProblemNo = ".$problemNum;
+		$sqlReturnToOperator = "UPDATE ProblemID SET Notes = '".$rejectNotes."', ReturnToOperator = 0 WHERE ProblemID = ".$ProblemID;
 		$resultReturnToOperator = $conn->query($sqlReturnToOperator);
-    newLog($conn,'Operator Rejection',$problemNum);
+    newLog($conn,'Operator Rejection',$ProblemID);
 	}
 	
 	else if (isset($_POST['accepted'])) {
-		$sqlAcceptSolution = "UPDATE ProblemNumber SET Accepted = 'Yes' WHERE ProblemNo = ".$problemNum;
+		$sqlAcceptSolution = "UPDATE ProblemID SET Accepted = 'Yes' WHERE ProblemID = ".$ProblemID;
 		$resultAcceptSolution = $conn->query($sqlAcceptSolution);
-    newLog($conn,'Solution Accepted', $problemNum);
+    newLog($conn,'Solution Accepted', $ProblemID);
 	}
 	
 	else if (isset($_POST['getTickets'])) {
 		$tickets = array();
 		
-		$sqlGetTickets = "SELECT Tickets.TicketNo, Tickets.CallerID, Tickets.CallDescription, Personnel.CallerName, Personnel.Telephone, Personnel.JobTitle, Personnel.Department FROM Tickets INNER JOIN Personnel ON Tickets.CallerID = Personnel.CallerID WHERE Tickets.ProblemNo = ".$problemNum;
+		#$sqlGetTickets = "SELECT Tickets.TicketNo, Tickets.CallerID, Tickets.CallDescription, Personnel.CallerName, Personnel.Telephone, Personnel.JobTitle, Personnel.Department FROM Tickets INNER JOIN Personnel ON Tickets.CallerID = Personnel.CallerID WHERE Tickets.ProblemNo = ".$problemNum;
+    $sqlGetTickets = "SELECT Tickets.TicketID, Tickets.PersonnelID, Personnel.FirstName, Personnel.Surname, Personnel.Telephone, Personnel.JobTitleID FROM Tickets INNER JOIN Personnel ON Tickets.CallerID = Personnel.PersonnelID WHERE Tickets.ProblemID = ".$ProblemID;
 		$resultGetTickets = $conn->query($sqlGetTickets);
 		if ($resultGetTickets->num_rows > 0) {
 			while ($row = $resultGetTickets->fetch_assoc()) {
@@ -95,17 +35,24 @@ if(isset($_POST['probNum'])){
 	else {
 		$inboxContents = array();
 
-		$sql = "SELECT ProblemNo, ProblemType, problemPriority, SerialNumber, SoftwareName, OS, ProblemDescription, SpecialistID, Solution, Notes, Resolved FROM ProblemNumber WHERE ProblemNo = ".$problemNum;
-		$result = $conn->query($sql);
+		#$sql = "SELECT ProblemID, ProblemTypeID, ProblemPriority, SerialNumber, SoftwareID, OSID, ProblemDescription, SpecialistID, Solution, Notes, Resolved, ProblemTypes.ProblemType FROM ProblemNumber LEFT JOIN ProblemTypes ON ProblemTypes.ProblemTypeID WHERE ProblemNumber.ProblemTypeID = ".$ProblemID;
+		$sql = "SELECT ProblemID, ProblemTypes.ProblemType, ProblemPriority, SerialNumber, Software.Software, OS.OS, ProblemDescription, SpecialistID, Solution, Notes, Resolved 
+    FROM ProblemNumber LEFT JOIN ProblemTypes ON ProblemTypes.ProblemTypeID = ProblemNumber.ProblemTypeID LEFT JOIN Software ON Software.SoftwareID = ProblemNumber.SoftwareID 
+    LEFT JOIN OS ON OS.OSID = ProblemNumber.OSID WHERE ProblemNumber.ProblemID = $ProblemID";
+    $result = $conn->query($sql);
 		if ($result->num_rows > 0) {
 			while($row = $result->fetch_assoc()) {
 				$inboxContents[] = $row;
+        #$ProblemTypeID = $row["ProblemTypeID"];
+        #$sqlGetProblemType = "SELECT ProblemType FROM ProblemTypes WHERE ProblemTypeID = $ProblemTypeID";
+        #$resultGetProblemType = $conn->query($sqlGetPRoblemType);
+        #$inboxContents["ProblemType"] = $resultGetProblemType;
+
 		  }
 		}
 		echo json_encode($inboxContents);
 	}
     $conn->close();
 	
-
 }
     ?>

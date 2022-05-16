@@ -11,7 +11,37 @@
 <link rel="stylesheet" href="/css/mainStyle.css">
 <link rel="stylesheet" href="/css/modalStyle.css">
 <link rel="stylesheet" href="/css/probTableStyle.css">
+<style>
+.left-input {
+text-align: left;
+margin-left: 0; 
+margin-right: auto;
+float: left;
+}
 
+.right-input {
+
+text-align: left;
+float: left;
+margin-left: auto; 
+margin-right: 0;
+}
+
+#chatheader {
+text-align:center;
+}
+#chatbox {
+width: 100%;
+height:50%;
+}
+#messagebox {
+width: 100%;
+}
+#specialistID {
+display: none;
+}
+
+</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 </head>
@@ -21,9 +51,24 @@ include '../logs.php';
 ?>
 
 <body>
+<?php
+include "../databaseConnection.php";
+$sqlOpen = "SELECT * FROM Chat";
+$resultOpen = $conn->query($sqlOpen);
+
+	if ($resultOpen->num_rows > 0) {
+		while ($row = $resultOpen->fetch_assoc()) {
+		$chatContents[] = $row;
+	}
+	}
+
+$a = json_encode($chatContents);
+echo "<script>var chat = $a</script>";
+
+?>
 
 <div class="page-container">
-<h1>Open Problems</h1>
+<h1>My Tickets</h1>
 <hr>
 
 <div id="ticketTable">
@@ -44,21 +89,20 @@ include '../logs.php';
 <table class="dark-table" id="ProblemTable" onclick="SelectRow(event)">
 	<thead>
 	<tr>
-		<th>Problem#</th>
-		<th>Problem Type</th>
-		<th>Date Assigned</th>
+		<th>ProblemID</th>
 		<th>Serial Number</th>
-		<th>Software</th>
-		<th>Tickets Assigned</th>
-		<th>Description</th>
+		<th>Software ID</th>
+		<th>Problem Description</th>
+		<th>Accepted</th>
+		<th>Solution</th>
 	</tr></thead>
 	<tbody>
 	<?php
 	include '../databaseConnection.php';
 	//Gives number of tickets for a problem.
-	function getNumTickets($conn, $problemNo) {
+	function getNumTickets($conn, $problemID) {
 		//sql for getting tickets
-		$sqlNumTicket = "SELECT COUNT(TicketNo) AS 'Ticks' FROM Tickets WHERE ProblemNo = '$problemNo'";
+		$sqlNumTicket = "SELECT COUNT(TicketNo) AS 'Ticks' FROM Tickets WHERE ProblemID = '$problemID'";
 		$resultNumTicket = $conn->query($sqlNumTicket);
 
 		$numTickets = ($resultNumTicket->fetch_assoc())['Ticks'];
@@ -66,13 +110,24 @@ include '../logs.php';
 	} 
 
 	//sql for getting open problems
-	$sqlOpen = "SELECT * FROM ProblemNumber WHERE Accepted = 'No'";
+	$userID = $_SESSION['ID'];
+	$sqlOpen = "SELECT					ProblemNumber.ProblemID as 'ProblemID', 
+    				ProblemNumber.SerialNumber as 'SerialNumber',
+    				ProblemNumber.SoftwareID as 'SoftwareID', 
+    				ProblemNumber.Solution as 'Solution', 
+    				ProblemNumber.Accepted as 'Accepted',
+					ProblemNumber.ProblemDescription as 'ProblemDescription'
+				FROM ProblemNumber 
+				INNER JOIN Tickets ON Tickets.ProblemID=ProblemNumber.ProblemID 
+				WHERE Tickets.PersonnelID = $userID";
+
 	$resultOpen = $conn->query($sqlOpen);
 
 	if ($resultOpen->num_rows > 0) {
 		while ($row = $resultOpen->fetch_assoc()) {
 			//Gets the number of tickets a problem has
-			$tickets = getNumTickets($conn,$row['ProblemNo']);
+		
+			
 
 			//Checks if there is a serial number
 			if ($row['SerialNumber'] == "") {
@@ -82,22 +137,23 @@ include '../logs.php';
 			}
 
 			//Checks if there is software
-			if ($row['SoftwareName'] == "") {
+			if ($row['SoftwareID'] == "0") {
 				$software = "N/A";
 			} else {
-				$software = $row['SoftwareName'];
+				$software = $row['SoftwareID'];
 			}
 
 			//Gives results in table
 			echo "<tr>" .
-			"<td>" . $row['ProblemNo'] . "</td>" .
-			"<td>" . $row['ProblemType'] . "</td>" .
-			"<td>" . $row['1stSubmissionDate'] . "</td>" .
+			"<td>" . $row['ProblemID'] . "</td>" .
 			"<td>" . $serialNumber . "</td>" .
 			"<td>" . $software . "</td>" .
-			"<td>" . $tickets . "</td>" . 
-			"<td>" . $row['ProblemDescription'] . "</td>" .
+			"<td style = 'word-wrap: break-word;' >" . $row['ProblemDescription'] . "</td>" .
+			"<td>" . $row['Accepted'] . "</td>" .
+			"<td>" . $row['Solution'] . "</td>" .
+			
 			"</tr>";
+			
 		}
 	}
 	?>
@@ -112,13 +168,15 @@ include '../logs.php';
 <div id="AddCallerModal" class="modal">
 
   <!-- Modal content -->
-  <div class="modal-content">
+  <div class="modal-content" style="overflow:hidden;">
     <div class="modal-header">
       <span class="close">&times;</span>
       <h2>Problem Details</h2>
 	<hr>
     </div>
 
+<div class="left-input" style="width:50%;">
+<h2 id="chatheader"> Info </h2>
 	<form id="updateProblem" method="post">
     <div class="modal-body">
 	<label for="problemNum">Problem#</label>
@@ -167,12 +225,23 @@ include '../logs.php';
     <div class="modal-footer">
 	<hr>
 	<br>
-	<input type="submit" name="submitUpdateProblem" value="Update Problem">
+	<input type="submit" name="submitUpdateProblem" value="Update Problem"/>
     </div>
 	</form>
-	<div class="dark-table" id="callerTable2"></div>
-		<br><br>
-  </div>
+</div>
+<div class="left-input" style="width:45%;">
+<form method ="post">
+<h2 id="chatheader">Chat</h2>
+<input name="specialistID" type="text" id="specialistID"/>
+<textarea id="chatbox" name = "chatbox">
+</textarea>
+<textarea id="messagebox" name="messagebox" >
+</textarea>
+<div style="text-align:center;">
+<input type="submit" name="submitMessage" id="submitMessage" value="Send Message"/>
+</form>
+</div>
+</div>
 
 </div>
 <script>
@@ -210,7 +279,6 @@ function FilterProblems() {
 	}
 
 </script>
-
 </body>
 <?php include '../openProblems.php'; ?>
 <?php include '../openProblemsCallerTable.php'; ?>
@@ -218,6 +286,11 @@ function FilterProblems() {
 <?php
 //Close db connection
 $conn->close();
+
+//load all chat
+
+
+
 
 //Gets specialist ID from name
 function getSpecialistID($conn,$name) {
@@ -230,6 +303,8 @@ function getSpecialistID($conn,$name) {
   }
 
 if (isset($_POST["submitUpdateProblem"])) {
+
+
 	//open db connection
 	include "../databaseConnection.php";
 
@@ -260,6 +335,37 @@ if (isset($_POST["submitUpdateProblem"])) {
 	//close db connection
 	$conn->close();
 }
+
+if (isset($_POST["submitMessage"])) {
+include '../databaseConnection.php';
+
+  $sqlPrevProblem = "SELECT MAX(ChatID) AS 'ChatID' FROM Chat";
+  $probResult = mysqli_query($conn, $sqlPrevProblem);
+  $oldProblemNumStr = ($probResult->fetch_assoc())["ChatID"];
+  $problemNumInt = intval($oldProblemNumStr) + 1;
+  $problemNum = strval($problemNumInt);
+$chatID = $problemNum;
+
+
+$senderID = $_SESSION['ID'];
+
+$recipientID = $_POST['specialistID'];
+$chatContents = $_POST['messagebox'];
+$chatStatus = 1;
+$date = date("Y/m/d H:i:s");
+$sqlNewChat = "INSERT INTO Chat VALUES ('$chatID', '$senderID', '$recipientID', '$chatContents', '$chatStatus', '$date')";	
+	if ($conn->query($sqlNewChat)) {
+  } else {
+    echo "Error" . mysqli_error($conn);
+  }
+
+ //close db connection.
+  $conn->close();
+
+}
+
+//Adds new problem to database
+
 ?>
 
 <script>

@@ -53,23 +53,23 @@
 	<?php
 	include '../databaseConnection.php';
 	//Gives number of tickets for a problem.
-	function getNumTickets($conn, $problemNo) {
+	function getNumTickets($conne, $problemID) {
 		//sql for getting tickets
-		$sqlNumTicket = "SELECT COUNT(TicketNo) AS 'Ticks' FROM Tickets WHERE ProblemNo = '$problemNo'";
-		$resultNumTicket = $conn->query($sqlNumTicket);
+		$sqlNumTicket = "SELECT COUNT(TicketID) AS 'Ticks' FROM Tickets WHERE ProblemID = '$problemID'";
+		$resultNumTicket = $conne->query($sqlNumTicket);
 
 		$numTickets = ($resultNumTicket->fetch_assoc())['Ticks'];
 		return $numTickets;
 	} 
 
 	//sql for getting open problems
-	$sqlOpen = "SELECT * FROM ProblemNumber WHERE Accepted = 'No'";
+	$sqlOpen = "SELECT * FROM ProblemNumber WHERE Accepted = 1 AND Resolved = 0";
 	$resultOpen = $conn->query($sqlOpen);
 
 	if ($resultOpen->num_rows > 0) {
 		while ($row = $resultOpen->fetch_assoc()) {
 			//Gets the number of tickets a problem has
-			$tickets = getNumTickets($conn,$row['ProblemNo']);
+			$tickets = getNumTickets($conn,$row['ProblemID']);
 
 			//Checks if there is a serial number
 			if ($row['SerialNumber'] == "") {
@@ -79,21 +79,21 @@
 			}
 
 			//Checks if there is software
-			if ($row['SoftwareName'] == "") {
+			if ($row['SoftwareID'] == "") {
 				$software = "N/A";
 			} else {
-				$software = $row['SoftwareName'];
+				$software = $row['SoftwareID'];
 			}
 
 			//Gives results in table
 			echo "<tr>" .
-			"<td>" . $row['ProblemNo'] . "</td>" .
-			"<td>" . $row['ProblemType'] . "</td>" .
-			"<td>" . $row['1stSubmissionDate'] . "</td>" .
-			"<td>" . $serialNumber . "</td>" .
-			"<td>" . $software . "</td>" .
-			"<td>" . $tickets . "</td>" . 
-			"<td>" . $row['ProblemDescription'] . "</td>" .
+			"<td>" . strval($row['ProblemID']) . "</td>" .
+			"<td>" . strval($row['ProblemTypeID']) . "</td>" .
+			"<td>" . strval($row['1stSubmissionDate']) . "</td>" .
+			"<td>" . strval($serialNumber) . "</td>" .
+			"<td>" . strval($software) . "</td>" .
+			"<td>" . strval($tickets) . "</td>" . 
+			"<td>" . strval($row['ProblemDescription']) . "</td>" .
 			"</tr>";
 		}
 	}

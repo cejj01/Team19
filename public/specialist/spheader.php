@@ -14,21 +14,19 @@
 <div id="headLinks">
 
 <table>
-	<col style="width:8%"><!--Logo-->
-	<col style="width:16%"><!--Links-->
-	<col style="width:16%">
-	<col style="width:16%">
-	<col style="width:16%">
-	<col style="width:16%">
-	<col style="width:2%"><!--Notif-->
-	<col style="width:10%"><!--Account-->
+	<col style="width:10%"><!--Logo-->
+	<col style="width:20%"><!--Links-->
+	<col style="width:20%">
+	<col style="width:20%">
+	<col style="width:20%">
+	<col style="width:4%"><!--Notif-->
+	<col style="width:12%"><!--Account-->
 <td><a href="http://teamb019.sci-project.lboro.ac.uk:5019/log-in.php"><img src="/src/Make-It-AllTextWhite.png" alt="Make-It-All Logo" class="logo"></a></td>
 <div class="pageLinks">
 	<td><a href="/specialist/sp-inbox.php">Inbox</a></td>
 	<td><a href="/specialist/sp-open-problems.php">Open Problems</a></td>
 	<td><a href="/specialist/sp-closed-problems.php">Closed Problems</a></td>
 	<td><a href="/specialist/sp-common-problems.php">Common Problems</a></td>
-	<td><a href="/specialist/sp-chat.php">Chat</a> </td>
 <td>
 <!-- Notification Button -->
 <div id="notif_button" onclick="toggleNotifications()"> <img src="/src/notification-bell.png" alt="img"></div>

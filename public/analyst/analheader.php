@@ -10,12 +10,9 @@
 
 <div id="Head">
 
-
-
 <!-- Links to each page -->
 
 <div id="headLinks">
-
 
 <table>
 	<col style="width:8%"><!--Logo-->
@@ -57,9 +54,7 @@
 </div>
 </td>
 
-</table>	
-	
-
+</table>
 
 </div>
 </div>
@@ -70,9 +65,7 @@
 </header>
 
 <?php include '../loadProfile.php'?>
-
 <?php include '../notifications.php'?>
-
 <?php include '../showNotifications.php'?>
 
 <script src="/js/headerScript.js"></script>

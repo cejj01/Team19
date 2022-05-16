@@ -86,8 +86,137 @@ button {
 
 <button id="saveChanges">Save Changes</button>
 
-<?php include 'loadProfilePage.php'?>
+<form action="" method="post" id="availChange">
+	<label for="avail">Availability?</label>
+
+	<select name="avail" id="avail">
+		<option value=1>Available</option>
+		<option value=0>Unavailable</option>
+	</select> 
+
+    <p><input type="submit" value="Save availablity"/></p>
+
+</form>
+
+<?php
+include 'loadProfilePage.php';
+include 'databaseConnection.php';
+
+		if (isset($_POST['avail'])) {
+			$availability = $_POST['avail'];
+			//echo $availability;
+			//echo $_SESSION['ID'];
+			$sqlSpecialistAvail = "UPDATE Specialist SET Available = ". strval($_POST['avail']) ." WHERE SpecialistID = ". strval($_SESSION['ID']);
+			//echo $sqlSpecialistAvail;
+			$result = $conn->query($sqlSpecialistAvail);
+			unset($_POST['avail']);
+		}
+
+		if (isset($_POST['CurrentSpecialities'])) {
+			$specToRemove = $_POST['CurrentSpecialities'];
+			//echo $specToRemove;
+			if ($specToRemove != "--"){
+				$sqlSpecialityRemove = "DELETE FROM Specialities WHERE ProblemTypeID = ".$specToRemove." AND SpecialistID = ".  strval($_SESSION['ID']);
+				//echo $sqlSpecialityRemove;
+				$result = $conn->query($sqlSpecialityRemove);
+			}
+			unset($_POST['CurrentSpecialities']);
+		}
+
+		if (isset($_POST['Unassignedspecialities'])) {
+			$specToAdd = $_POST['Unassignedspecialities'];
+			//echo $specToAdd;
+			if ($specToAdd != "--"){
+				$sqlSpecialityAdd = "INSERT INTO Specialities(SpecialistID, ProblemTypeID) VALUES(".strval($_SESSION['ID']).",".strval($specToAdd).")";
+				//echo $sqlSpecialityAdd;
+				$result = $conn->query($sqlSpecialityAdd);
+			}
+			unset($_POST['Unassignedspecialities']);
+		}
+
+		$sqlGetMySpecialities = "SELECT ProblemTypeID FROM Specialities WHERE SpecialistID = ".(strval($_SESSION['ID']));
+		//echo ($sqlGetMySpecialities);
+		//echo (strval($_SESSION['ID']));
+		$specialtyQuery = $conn->query($sqlGetMySpecialities);
+		$mySpecialities = array();
+		if ($specialtyQuery->num_rows > 0) {
+			while($row = $specialtyQuery->fetch_assoc()) {
+			array_push($mySpecialities, $row['ProblemTypeID']);
+			//echo ($row['ProblemTypeID']);
+			}
+		} 
+
+
+		$sqlGetSpecialities = "SELECT ProblemTypeID, ProblemType, SubProblemType FROM ProblemTypes";
+		$specialtyQuery = $conn->query($sqlGetSpecialities);
+		//echo $sqlGetSpecialities;
+		//echo $specialtyList;
+		$specialtiesArray = array(array());
+		if ($specialtyQuery->num_rows > 0) {
+			while($row = $specialtyQuery->fetch_assoc()) {
+			array_push($specialtiesArray, [$row['ProblemTypeID'], $row['ProblemType'], $row['SubProblemType']]);
+			//echo ([$row['ProblemTypeID'], $row['ProblemType']]);
+			}
+		};
+		//echo $specialtiesArray;
+
+	
+
+
+?>
+
+<form action="" method="post" id="curSpecChange">
+	<label for="CurrentSpecialities">Current specialities:</label>
+	<select name = "CurrentSpecialities">
+		<option> -- </option>;
+		<?php
+		foreach ($specialtiesArray AS $specialty) {
+			if (in_array($specialty[0], $mySpecialities)){
+				echo "<option value='".$specialty[0]."'>".$specialty[1]." - ".$specialty[2]."</option>";
+			}
+		}
+		?>
+
+	</select>
+	<p><input type="submit" value="Remove speciality"/></p>
+</form>
+
+<form action="" method="post" id ="unassSpecChange">
+<label for="Unassignedspecialities">Unassigned specialities:</label>
+	<select name = "Unassignedspecialities">
+		<option> -- </option>;
+		<?php
+		foreach ($specialtiesArray AS $specialty) {
+			if (!in_array($specialty[0], $mySpecialities)){
+				echo "<option value='".$specialty[0]."'>".$specialty[1]." - ".$specialty[2]."</option>";
+			}
+		}
+		?>
+
+	</select>
+	<p><input type="submit" value="Add speciality"/></p>
+</form>
+
+
+<?php
+include 'loadProfilePage.php';
+include 'databaseConnection.php';
+	if ($_SESSION['Role'] != "specialist"){
+		//echo "non specialist detected";
+		echo"<script type='text/javascript'>document.getElementById('availChange').style.display = 'none';</script>";
+		echo"<script type='text/javascript'>document.getElementById('curSpecChange').style.display = 'none';</script>";
+		echo"<script type='text/javascript'>document.getElementById('unassSpecChange').style.display = 'none';</script>";
+	}
+?>
 
 
 
+</body>
+<footer>
+<script>
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
+</footer>
 </html>

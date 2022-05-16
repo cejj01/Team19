@@ -10,13 +10,12 @@ viewNotifications($userID, $conn);
 		dismissNotification($userID, $notificationNo, $conn);
 	}
 
-		
-/*          functions                      */	 
+/* functions */	 
 	function viewNotifications($userID, $conn) {
 		//UPDATE Notifications SET Solved='False'
 		$notifications = array();
 		//Getting notifications for user
-		$sqlViewNotifications = "SELECT NotificationNo, SenderID, Date, Type, Details FROM Notifications WHERE RecipientID = '".$userID."' AND Solved = 'False' ORDER BY NotificationNo DESC";
+		$sqlViewNotifications = "SELECT NotificationNo, SenderID, DateTime, NotificationsType.Type FROM Notifications LEFT JOIN NotificationsType ON NotificationsType.TypeID = Notifications.TypeID WHERE RecipientID = '".$userID."' AND Solved = 0 ORDER BY NotificationNo DESC";
 		$resultViewNotifications = $conn->query($sqlViewNotifications);
     
 		if ($resultViewNotifications->num_rows > 0) {
@@ -24,19 +23,18 @@ viewNotifications($userID, $conn);
 			   $notifications[] = $row;
 			 }
 		}
-		
 		return ($notifications);
 	}
 
 	function dismissNotification($userID, $notificationNo, $conn) {
-		$sqlDismissNotification = "UPDATE Notifications SET Solved = 'True' WHERE NotificationNo = '".$notificationNo."'";
+		$sqlDismissNotification = "UPDATE Notifications SET Solved = 1 WHERE NotificationNo = '".$notificationNo."'";
 		$resultDismissNotification = $conn->query($sqlDismissNotification);
 		}
 
-	function generateNotification($conn, $userID, $recipientID, $type) {
+	function generateNotification($conn, $userID, $recipientID, $typeID) {
 		$notificationNo = generateNewNotificationNo($conn);
-		$todaysDate = date('y-m-d');
-		$sqlGenerateNotification = "INSERT INTO Notifications (RecipientID, SenderID, Date, Type, NotificationNo) Values ('".$recipientID."', '".$userID."', '".$todaysDate."', '".$type."', '".$notificationNo."')";
+		$todaysDateTime = date('Y-m-d H:i:s');
+		$sqlGenerateNotification = "INSERT INTO Notifications (RecipientID, SenderID, DateTime, TypeID, NotificationNo) Values ('".$recipientID."', '".$userID."', '".$todaysDateTime."', '".$typeID."', '".$notificationNo."')";
 		$resultGenerateNotification = $conn->query($sqlGenerateNotification);
 		}
 

@@ -30,6 +30,40 @@
 </head>
 <body>
 
+<?php
+include 'loadProfilePage.php';
+include 'databaseConnection.php';
+
+		if (isset($_POST['referToExternal'])) {
+			$probIdToExtern = $_POST['fooProbID'];
+			$externalSpec = $_POST['referToExternal'];
+			if ($externalSpec != "--"){
+				//echo $availability;
+				//echo $_SESSION['ID'];
+				$sqlReturnToOperator = "UPDATE ProblemNumber SET Notes = 'sent to external specialist with external id'".$externalSpec.", SpecialistID = 0 WHERE ProblemID = ".$probIdToExtern;;
+				//echo $sqlSpecialistAvail;
+				$result = $conn->query($sqlSpecialistAvail);
+			}
+			unset($_POST['avail']);
+		}
+
+
+		$sqlGetExternal = "SELECT Firstname, Surname, Speciality, Company, Email FROM ExternalSpecialists";
+		//echo ($sqlGetMySpecialities);
+		//echo (strval($_SESSION['ID']));
+		$externalQuery = $conn->query($sqlGetExternal);
+		$myExternal = array();
+		if ($externalQuery->num_rows > 0) {
+			while($row = $externalQuery->fetch_assoc()) {
+				array_push($myExternal, [$row['Firstname'], $row['Surname'], $row['Speciality'], $row['Company'], $row['Email']]);;
+			//echo ($row['ProblemTypeID']);
+			}
+		} 
+	
+
+
+?>
+
 <script>
 
 function SearchFilter() {
@@ -88,73 +122,6 @@ function ProblemTypeFilter() {
         }
     }
 }
-
-function UrgencyFilter() {
-    var input, filter, table, tr, td, i, userInput;
-    input = document.getElementById("UrgencyFilter");
-    filter = input.value.toLowerCase();
-    table = document.getElementById("incoming");
-    tr = table.getElementsByTagName("button");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("label")[2];
-        if (td) {
-            userInput = td.textContent || td.innerText;
-            if (userInput.toLowerCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
-}
-
-function filterProblems() {
-	var value;
-	index = 0;
-	value = document.getElementById("sortOption");
-
-	table = document.getElementById("incoming");
-	switching = true;
-	if (value == "placeholder") {
-		index = 0;
-	} else if (value == "problemID") {
-		index = 0;
-	} else if (value == "problemType") {
-		index = 1;
-	} else if (value == "urgency") {
-		index = 2;
-	} else if (value == "date") {
-		index = 0;
-	}
-	while (switching) {
-		//start by saying: no switching is done:
-		switching = false;
-		rows = table.rows;
-		/*Loop through all table rows (except the
-		first, which contains table headers):*/
-		tr = table.getElementsByTagName("button");
-		for (i = 0; i < (rows.length - 1); i++) {
-			//start by saying there should be no switching:
-			shouldSwitch = false;
-			/*Get the two elements you want to compare,
-			one from current row and one from the next:*/
-			x = rows[i].getElementsByTagName("label")[value];
-			y = rows[i + 1].getElementsByTagName("label")[value];
-			//check if the two rows should switch place:
-			if (Number(x.innerHTML) > Number(y.innerHTML)) {
-				//if so, mark as a switch and break the loop:
-				shouldSwitch = true;
-				break;
-			}
-		}
-		if (shouldSwitch) {
-			/*If a switch has been marked, make the switch
-			and mark that a switch has been done:*/
-			rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-			switching = true;
-		}
-	}
-}
 </script>
 <br>
 
@@ -165,7 +132,6 @@ function filterProblems() {
 		<div id="messages">
 			<div id="filters">
 				<input type="text" id="ProblemIDInput" onkeyup="ProblemIDFilter()" placeholder="Filter by Problem ID">
-				<!--<input type="text" id="ProblemTypeIDInput" onkeyup="ProblemTypeFilter()" placeholder="Filter by Problem Type ID">-->
 				<?php
 				$ProblemsArray = array();
 				$sql = "SELECT ProblemTypeID, ProblemType FROM ProblemTypes";
@@ -183,15 +149,6 @@ function filterProblems() {
 				echo '</select>';
 				}
 				?>
-				<!--<input type="text" id="UrgencyInput" onkeyup="UrgencyFilter()" placeholder="Filter by Urgency">
-				<input name="searchBar" type="text" id="searchBar" placeholder="Search..." onkeyup="SearchFilter()">
-				<select name="sortOption" id="sortOption" onchange="filterProblems()">
-					<option value="placeholder">Sort By ...</option>
-					<option value="problemID">Problem ID</option>
-					<option value="problemType">Problem Type (A-Z)</option>
-					<option value="urgency">Urgency</option>
-					<option value="date">Date (Newest)</option>
-				</select>-->
 			</div>
 			<div id="incoming">
 			</div>
@@ -205,7 +162,7 @@ function filterProblems() {
 					<tr class="hiddenContent" hidden>
 						<th>Problem Type:</th>
 						<td id="probType"></td>
-						<th>Specialist:</th>
+						<th>Specialist Name:</th>
 						<td id="spName"></td>
 					</tr>
 					</tbody>
@@ -219,12 +176,14 @@ function filterProblems() {
 						<td id="probNum"></td>
 						<th>Priority:</th>
 						<td id="priority"></td>
+						<th>Serial#:</th>
+						<td id="serialNum"></td>
 						<!--<th>Personnel ID:</th>
 						<td id="PersonnelID"></td>-->
 					</tr>
 					<tr>
-						<th>Serial#:</th>
-						<td id="serialNum"></td>
+						<!--<th>Serial#:</th>
+						<td id="serialNum"></td>-->
 						<th>Software:</th>
 						<td id="software"></td>
 						<th>OS:</th>
@@ -242,6 +201,22 @@ function filterProblems() {
 				<textarea id="solution" class="hiddenContent" name="solution" rows="2" readonly hidden></textarea>
 				<br>
 				<button id="viewTickets" class="hiddenContent" onclick="getTickets()" hidden>View Tickets</button>
+
+				<form action="" method="post" id="curSpecChange" class="hiddenContent">
+					<label for="referToExternal">Refer to external specialist:</label>
+					<select name = "referToExternal">
+						<option> -- </option>;
+						<?php
+						foreach ($myExternal AS $external) {
+							echo "<option value='$external[0]'>".$external[0]." - ".$external[1]." - ".$external[2]." - ".$external[3]." - ".$external[4]."</option>";
+						}
+						?>
+
+					</select>
+					<input type="hidden" name="fooProbID" value= '<script>echo (document.getElementById("probNum").innerText) </script>'/>
+					<p><input type="submit" value="Refer To External Specialist"/></p>
+				</form>
+
 			</div>
 		<div class="msgFooter">
 			<hr>
@@ -277,20 +252,16 @@ function filterProblems() {
     </div>
 	<div id="tableDiv">
 		<table class="dark-table" id="viewTicketsTable">
-		<col style="width:10%"><!--#-->
-		<col style="width:10%"><!--CallerID-->
-		<col style="width:20%"><!--Name-->
-		<col style="width:20%"><!--Phone#-->
-		<col style="width:30%"><!--Description-->
-		<col style="width:10%"><!--Dept-->
+		<col style="width:15%"><!--#-->
+		<col style="width:15%"><!--CallerID-->
+		<col style="width:25%"><!--Name-->
+		<col style="width:25%"><!--Phone#-->
 		<thead>
 		<tr>
-			<th>Ticket#</th>
-			<th>CallerID</th>
+			<th>TicketID</th>
+			<th>PersonnelID</th>
 			<th>Name</th>
-			<th>Phone#</th>
-			<th>Description</th>
-			<th>Department</th>
+			<th>Phone Number</th>
 		</tr></thead>
 		<tbody id="ticketTableBody">
 		</tbody>
@@ -350,10 +321,10 @@ function loadMessages(){
 	for (var i=0; i < numberOfProblems; i++) {
 		var newMsg = document.createElement("button");
 		newMsg.classList.add("msg");
-		if (inboxThumbnail[i]['ProblemPriority']=="Medium"){
+		if (inboxThumbnail[i]['ProblemPriority']==0){
 			newMsg.classList.add("med");
 		}
-		else if (inboxThumbnail[i]['ProblemPriority']=="High"){
+		else if (inboxThumbnail[i]['ProblemPriority']==1){
 			newMsg.classList.add("high");
 		}
 		
@@ -373,8 +344,14 @@ async function loadInbox(probNum){
 		document.getElementById("probType").innerHTML = inboxContents[0]['ProblemType'];
 		document.getElementById("spName").innerHTML = inboxContents[0]['SpecialistID'];
 		document.getElementById("probNum").innerHTML = inboxContents[0]['ProblemID'];
-		document.getElementById("priority").innerHTML = inboxContents[0]['ProblemPriority'];
-		//document.getElementById("PersonnelID").innerHTML = inboxContents[0]['PersonnelID'];
+		
+		if (inboxThumbnail[i]['ProblemPriority']==0){
+            document.getElementById("priority").innerHTML = "Med";
+        }
+        else if (inboxThumbnail[i]['ProblemPriority']==1){
+            document.getElementById("priority").innerHTML = "High";
+        }
+
 		document.getElementById("serialNum").innerHTML = inboxContents[0]['SerialNumber'];
 		document.getElementById("software").innerHTML = inboxContents[0]['Software'];
 		document.getElementById("OSName").innerHTML = inboxContents[0]['OS'];
@@ -451,17 +428,14 @@ async function getTickets(){
 			var callerIDColumn = row.insertCell(1);
 			var nameColumn = row.insertCell(2);
 			var phoneColumn = row.insertCell(3);
-			var descriptionColumn = row.insertCell(4);
-			var deptColumn = row.insertCell(5);
 			
-			ticketNumColumn.innerHTML = ticketList[y]['TicketNo'];
-			callerIDColumn.innerHTML = ticketList[y]['CallerID'];
-			nameColumn.innerHTML = ticketList[y]['CallerName'];
+			ticketNumColumn.innerHTML = ticketList[y]['TicketID'];
+			callerIDColumn.innerHTML = ticketList[y]['PersonnelID'];
+			$Name = ticketList[y]['FirstName'] + ' ' + ticketList[y]['Surname'];
+			nameColumn.innerHTML = $Name;
 			phoneColumn.innerHTML = ticketList[y]['Telephone'];
-			descriptionColumn.innerHTML = ticketList[y]['CallDescription'];
-			deptColumn.innerHTML = ticketList[y]['Department'];
 		}
-		document.getElementById("callerID").innerHTML = ticketList[0]['CallerID'];
+		document.getElementById("callerID").innerHTML = ticketList[0]['PersonnelID'];
 
 	}
 	//xhr.onerror
